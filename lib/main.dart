@@ -1,9 +1,15 @@
+import 'package:alert_system_for_gaps/firebase_options.dart';
 import 'package:alert_system_for_gaps/screens/login/login_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'core/constants/color_constants.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -27,7 +33,7 @@ class MyApp extends StatelessWidget {
           .apply(bodyColor: Colors.white),
       canvasColor: secondaryColor,
     ),
-      home: Login(title: "Welcome to the Admin & Dashboard Panel"),
+      home: Login(title: "Alert System For GAPS"),
     );
   }
 }
