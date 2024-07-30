@@ -44,7 +44,8 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
+      body: MediaQuery.of(context).size.width >= 750 ?
+      Stack(
         fit: StackFit.loose,
         children: <Widget>[
           Row(
@@ -64,16 +65,16 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                     //elevation: 5,
                     color: bgColor,
                     child: Container(
-                      padding: EdgeInsets.all(42),
-                      width: MediaQuery.of(context).size.width / 3.6,
-                      height: MediaQuery.of(context).size.height / 1.2,
+                      padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                      width: MediaQuery.of(context).size.width / 3,
+                      height: MediaQuery.of(context).size.height / 1.1,
                       child: Column(
                         children: <Widget>[
                           SizedBox(
-                            height: 60,
+                            height: 10,
                           ),
                           Image.asset("assets/logo/logo_icon.png", scale: 3),
-                          SizedBox(height: 24.0),
+                          SizedBox(height: 10.0),
                           //Flexible(
                           //  child: _loginScreen(context),
                           //),
@@ -124,6 +125,71 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
             ],
           ),
         ],
+      )
+          : Container(
+        height: MediaQuery.of(context).size.height,
+        color: bgColor,
+        child: Center(
+          child: Card(
+            elevation: 5,
+            color: bgColor,
+            child: Container(
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+              width: MediaQuery.of(context).size.width / 1.4,
+              height: MediaQuery.of(context).size.height / 1.1,
+              child: Column(
+                children: <Widget>[
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Image.asset("assets/logo/logo_icon.png", scale: 3),
+                  const SizedBox(height: 10.0),
+                  //Flexible(
+                  //  child: _loginScreen(context),
+                  //),
+                  Flexible(
+                    child: Stack(
+                      children: [
+                        SlideTransition(
+                          position:
+                          _animationController!.drive(tweenRight),
+                          child: Stack(
+                              fit: StackFit.loose,
+                              clipBehavior: Clip.none,
+                              children: [
+                                _loginScreen(context),
+                              ]),
+                        ),
+                        SlideTransition(
+                          position:
+                          _animationController!.drive(tweenLeft),
+                          child: Stack(
+                              fit: StackFit.loose,
+                              clipBehavior: Clip.none,
+                              children: [
+                                _registerScreen(context),
+                              ]),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  //Flexible(
+                  //  child: SlideTransition(
+                  //    position: _animationController!.drive(tweenLeft),
+                  //    child: Stack(
+                  //        fit: StackFit.loose,
+                  //        clipBehavior: Clip.none,
+                  //        children: [
+                  //          _registerScreen(context),
+                  //        ]),
+                  //  ),
+                  //),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -176,6 +242,28 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                     : null;
               },
 
+              topLabel: "ID",
+
+              hintText: "Enter Staff Id",
+              // prefixIcon: FlutterIcons.chevron_left_fea,
+            ),
+            SizedBox(height: 8.0),
+            InputWidget(
+              keyboardType: TextInputType.emailAddress,
+              onSaved: (String? value) {
+                // This optional block of code can be used to run
+                // code when the user saves the form.
+              },
+              onChanged: (String? value) {
+                // This optional block of code can be used to run
+                // code when the user saves the form.
+              },
+              validator: (String? value) {
+                return (value != null && value.contains('@'))
+                    ? 'Do not use the @ char.'
+                    : null;
+              },
+
               topLabel: "Email",
 
               hintText: "Enter E-mail",
@@ -200,25 +288,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   MaterialPageRoute(builder: (context) => HomeScreen()),
                 );
               },
-            ),
-            SizedBox(height: 24.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Checkbox(
-                      value: isChecked,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          isChecked = value!;
-                        });
-                      },
-                    ),
-                    Text("Remember Me")
-                  ],
-                ),
-              ],
             ),
             SizedBox(height: 24.0),
             Center(
@@ -308,36 +377,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   MaterialPageRoute(builder: (context) => HomeScreen()),
                 );
               },
-            ),
-            SizedBox(height: 24.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Checkbox(
-                      value: isChecked,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          isChecked = value!;
-                        });
-                      },
-                    ),
-                    Text("Remember Me")
-                  ],
-                ),
-                GestureDetector(
-                  onTap: () {},
-                  child: Text(
-                    "Forget Password?",
-                    textAlign: TextAlign.right,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText2!
-                        .copyWith(color: greenColor),
-                  ),
-                ),
-              ],
             ),
             SizedBox(height: 24.0),
             Center(
