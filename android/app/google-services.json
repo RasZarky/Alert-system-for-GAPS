@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "1076162529140",
-    "project_id": "alert-system-for-gaps",
-    "storage_bucket": "alert-system-for-gaps.appspot.com"
+    "project_number": "624565380252",
+    "project_id": "alert-system-for-gaps1",
+    "storage_bucket": "alert-system-for-gaps1.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1076162529140:android:bad0490e4ccfae94e3ce21",
+        "mobilesdk_app_id": "1:624565380252:android:9c2aa1245d3b0282c4b959",
         "android_client_info": {
           "package_name": "com.example.alert_system_for_gaps"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBeSHxWpyOgIGEBZPrQdwvwnTKF_lRaNpo"
+          "current_key": "AIzaSyCykk3T888eXQGTlLl2x5PCld1BIlWeqlU"
         }
       ],
       "services": {

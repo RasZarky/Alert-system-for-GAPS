@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:alert_system_for_gaps/core/constants/color_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -63,7 +64,7 @@ class _SliderWidgetState extends State<SliderWidget> {
               padding: EdgeInsets.only(left: 0),
               width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
-                  boxShadow: [], color: Color(slides[index].kBackgroundColor!)),
+                  boxShadow: [], color: bgColor),
               child: Stack(
                 children: <Widget>[
                   Column(
@@ -71,49 +72,21 @@ class _SliderWidgetState extends State<SliderWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        height: MediaQuery.of(context).size.height / 2 - 50,
+                        height: MediaQuery.of(context).size.height/1.3,
                         width: MediaQuery.of(context).size.width / 2,
+                        margin: const EdgeInsets.all(30),
                         decoration: BoxDecoration(
                             image: DecorationImage(
-                              fit: BoxFit.fitWidth,
+                              fit: BoxFit.cover,
                               image: AssetImage(slides[index].image!),
                             ),
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(8.0),
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(25.0),
                             ),
                             boxShadow: [],
                             color: Color(0xFF96A724)),
                       ),
                     ],
-                  ),
-                  Positioned(
-                    //top: MediaQuery.of(context).size.height / 1.4,
-
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 12,
-                        ),
-                        Image.asset(slides[index].productImage!),
-                        Container(
-                          alignment: Alignment.center,
-                          child: Text(slides[index].text!,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.headline5),
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          child: Text(slides[index].altText!,
-                              style: Theme.of(context).textTheme.headline5),
-                        ),
-                        SizedBox(height: 12),
-                        Container(
-                          alignment: Alignment.center,
-                          child: Text(slides[index].bAltText!,
-                              style: Theme.of(context).textTheme.bodyText1),
-                        ),
-                      ],
-                    ),
                   ),
                   Positioned(
                       child: Padding(

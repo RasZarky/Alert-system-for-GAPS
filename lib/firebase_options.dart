@@ -47,29 +47,29 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBgjCw0GcdJehnNrPdVGtEHtSrOVuuJxsw',
-    appId: '1:1076162529140:web:ce94a51a319a42b2e3ce21',
-    messagingSenderId: '1076162529140',
-    projectId: 'alert-system-for-gaps',
-    authDomain: 'alert-system-for-gaps.firebaseapp.com',
-    storageBucket: 'alert-system-for-gaps.appspot.com',
-    measurementId: 'G-NNEV23K7X4',
+    apiKey: 'AIzaSyDBoZKCGYoaXrSYpXQ3JbGIXL8xBRyr-eA',
+    appId: '1:624565380252:web:79de6817f7e6fb41c4b959',
+    messagingSenderId: '624565380252',
+    projectId: 'alert-system-for-gaps1',
+    authDomain: 'alert-system-for-gaps1.firebaseapp.com',
+    storageBucket: 'alert-system-for-gaps1.appspot.com',
+    measurementId: 'G-6PM36TM860',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBeSHxWpyOgIGEBZPrQdwvwnTKF_lRaNpo',
-    appId: '1:1076162529140:android:bad0490e4ccfae94e3ce21',
-    messagingSenderId: '1076162529140',
-    projectId: 'alert-system-for-gaps',
-    storageBucket: 'alert-system-for-gaps.appspot.com',
+    apiKey: 'AIzaSyCykk3T888eXQGTlLl2x5PCld1BIlWeqlU',
+    appId: '1:624565380252:android:9c2aa1245d3b0282c4b959',
+    messagingSenderId: '624565380252',
+    projectId: 'alert-system-for-gaps1',
+    storageBucket: 'alert-system-for-gaps1.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAF2QqeWD6mugR9JfgUSjHPzYA6w5SPK9I',
-    appId: '1:1076162529140:ios:1b19c513c544e52ee3ce21',
-    messagingSenderId: '1076162529140',
-    projectId: 'alert-system-for-gaps',
-    storageBucket: 'alert-system-for-gaps.appspot.com',
+    apiKey: 'AIzaSyBYis7AIBzixOkSHFIw-DziFbZ2Y_sTXBQ',
+    appId: '1:624565380252:ios:621ae6449f9c9089c4b959',
+    messagingSenderId: '624565380252',
+    projectId: 'alert-system-for-gaps1',
+    storageBucket: 'alert-system-for-gaps1.appspot.com',
     iosBundleId: 'com.example.alertSystemForGaps',
   );
 }
