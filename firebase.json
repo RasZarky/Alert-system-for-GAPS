@@ -1,1 +1,34 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"alert-system-for-gaps1","appId":"1:624565380252:android:9c2aa1245d3b0282c4b959","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"alert-system-for-gaps1","configurations":{"android":"1:624565380252:android:9c2aa1245d3b0282c4b959","ios":"1:624565380252:ios:621ae6449f9c9089c4b959","web":"1:624565380252:web:79de6817f7e6fb41c4b959"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "alert-system-for-gaps1",
+          "appId": "1:624565380252:android:9c2aa1245d3b0282c4b959",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "alert-system-for-gaps1",
+          "configurations": {
+            "android": "1:624565380252:android:9c2aa1245d3b0282c4b959",
+            "ios": "1:624565380252:ios:621ae6449f9c9089c4b959",
+            "web": "1:624565380252:web:79de6817f7e6fb41c4b959"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "source": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "frameworksBackend": {
+      "region": "us-central1"
+    }
+  }
+}

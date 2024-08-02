@@ -1,6 +1,9 @@
 import 'package:alert_system_for_gaps/core/constants/color_constants.dart';
+import 'package:alert_system_for_gaps/screens/login/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({
@@ -19,16 +22,16 @@ class SideMenu extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
-                  height: defaultPadding * 3,
+                  height: defaultPadding,
                 ),
                 Image.asset(
                   "assets/logo/logo_icon.png",
-                  scale: 5,
+                  height: 50,
                 ),
                 SizedBox(
                   height: defaultPadding,
                 ),
-                Text("Smart HR - Application")
+                richText(5),
               ],
             )),
             DrawerListTile(
@@ -37,45 +40,71 @@ class SideMenu extends StatelessWidget {
               press: () {},
             ),
             DrawerListTile(
-              title: "Posts",
+              title: "Tasks",
               svgSrc: "assets/icons/menu_tran.svg",
               press: () {},
             ),
             DrawerListTile(
-              title: "Pages",
+              title: "Farmers",
               svgSrc: "assets/icons/menu_task.svg",
               press: () {},
             ),
             DrawerListTile(
-              title: "Categories",
+              title: "Extension officers",
               svgSrc: "assets/icons/menu_doc.svg",
               press: () {},
             ),
             DrawerListTile(
-              title: "Appearance",
+              title: "Admins",
               svgSrc: "assets/icons/menu_store.svg",
               press: () {},
             ),
             DrawerListTile(
-              title: "Users",
+              title: "Calender",
               svgSrc: "assets/icons/menu_notification.svg",
               press: () {},
             ),
             DrawerListTile(
-              title: "Tools",
-              svgSrc: "assets/icons/menu_profile.svg",
-              press: () {},
-            ),
-            DrawerListTile(
-              title: "Settings",
+              title: "logout",
               svgSrc: "assets/icons/menu_setting.svg",
-              press: () {},
+              press: () {
+                _showDeleteDialog(context);
+              },
             ),
           ],
         ),
       ),
     );
   }
+}
+
+void _showDeleteDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.clear();
+
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => Login(title: "Alert System For GAPS")));
+            },
+            child: const Text('logout'),
+          ),
+        ],
+      );
+    },
+  );
 }
 
 class DrawerListTile extends StatelessWidget {
@@ -106,4 +135,31 @@ class DrawerListTile extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget richText(double fontSize) {
+  return Text.rich(
+    TextSpan(
+      style: GoogleFonts.inter(
+        fontSize: 15,
+        color: Colors.white,
+        letterSpacing: 1.999999953855673,
+      ),
+      children: const [
+        TextSpan(
+          text: 'Alert system for ',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        TextSpan(
+          text: 'GAPS',
+          style: TextStyle(
+            color: Color(0xFFFE9879),
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
+    ),
+  );
 }

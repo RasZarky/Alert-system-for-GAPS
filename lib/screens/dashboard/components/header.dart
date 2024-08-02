@@ -1,13 +1,40 @@
 import 'package:alert_system_for_gaps/core/constants/color_constants.dart';
 import 'package:alert_system_for_gaps/responsive.dart';
+import 'package:alert_system_for_gaps/screens/login/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class Header extends StatelessWidget {
-  const Header({
-    Key? key,
+class Header extends StatefulWidget {
+  void Function() onTap;
+  Header({
+    Key? key, required this.onTap
   }) : super(key: key);
 
+  @override
+  State<Header> createState() => _HeaderState();
+}
+
+class _HeaderState extends State<Header> {
+  String name = "loading";
+  String role = "loading";
+
+  Future<void> getData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? newRole = prefs.getString("role");
+    String? newName = prefs.getString("name");
+    print("/////////////////////////// $newRole");
+    setState(() {
+      role = newRole!;
+      name = newName!;
+    });
+  }
+
+  @override
+  void initState() {
+    getData();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -15,7 +42,9 @@ class Header extends StatelessWidget {
         if (!Responsive.isDesktop(context))
           IconButton(
             icon: Icon(Icons.menu),
-            onPressed: () {},
+            onPressed: () {
+              widget.onTap;
+            },
           ),
         if (!Responsive.isMobile(context))
           Column(
@@ -23,14 +52,14 @@ class Header extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Hello, Deniz 👋",
+                "Hello, $name 👋",
                 style: Theme.of(context).textTheme.headline6,
               ),
               SizedBox(
                 height: 8,
               ),
               Text(
-                "Wellcome to your dashboard",
+                "Welcome to your dashboard",
                 style: Theme.of(context).textTheme.subtitle2,
               ),
             ],
@@ -38,43 +67,49 @@ class Header extends StatelessWidget {
         if (!Responsive.isMobile(context))
           Spacer(flex: Responsive.isDesktop(context) ? 2 : 1),
         Expanded(child: SearchField()),
-        ProfileCard()
+        ProfileCard(role: role,)
       ],
     );
   }
 }
 
 class ProfileCard extends StatelessWidget {
-  const ProfileCard({
-    Key? key,
+  String role;
+  ProfileCard({
+    Key? key, required this.role
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(left: defaultPadding),
-      padding: EdgeInsets.symmetric(
-        horizontal: defaultPadding,
-        vertical: defaultPadding / 2,
-      ),
-      decoration: BoxDecoration(
-        color: secondaryColor,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-        border: Border.all(color: Colors.white10),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            backgroundImage: AssetImage("assets/images/profile_pic.png"),
-          ),
-          if (!Responsive.isMobile(context))
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-              child: Text("Deniz Çolak"),
+    return GestureDetector(
+      onTap: (){
+        _showDeleteDialog(context);
+      },
+      child: Container(
+        margin: EdgeInsets.only(left: defaultPadding),
+        padding: EdgeInsets.symmetric(
+          horizontal: defaultPadding,
+          vertical: defaultPadding / 2,
+        ),
+        decoration: BoxDecoration(
+          color: secondaryColor,
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: AssetImage("assets/images/profile_pic.png"),
             ),
-          Icon(Icons.keyboard_arrow_down),
-        ],
+            if (!Responsive.isMobile(context))
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                child: Text(role),
+              ),
+            Icon(Icons.keyboard_arrow_down),
+          ],
+        ),
       ),
     );
   }
@@ -113,4 +148,33 @@ class SearchField extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showDeleteDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.clear();
+              
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => Login(title: "Alert System For GAPS")));
+            },
+            child: const Text('logout'),
+          ),
+        ],
+      );
+    },
+  );
 }

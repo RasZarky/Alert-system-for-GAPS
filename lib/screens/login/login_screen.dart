@@ -42,10 +42,23 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   int _countdown = 60;
   Timer? _timer;
 
-  // bool _isValidPhoneNumber(String phoneNumber) {
-  //   final RegExp regExp = RegExp(r'^\+[1-9]\d{1,14}$');
-  //   return regExp.hasMatch(phoneNumber);
-  // }
+  bool _isValidPhoneNumber(String phoneNumber) {
+    final RegExp regExp = RegExp(r'^\+[1-9]\d{1,14}$');
+    return regExp.hasMatch(phoneNumber);
+  }
+
+  Future<void> getData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? loggedIn = prefs.getString("logged");
+    if (loggedIn == "true") {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(),
+          ));
+    }
+  }
 
   void startTimer() {
     setState(() {
@@ -78,9 +91,9 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     const String apiKey = '0bce26ec-8f46-4640-951a-aba560e44e64';
     final String senderId = 'ASFGAPS';
     final String message = 'Your verification code for verifying your alert '
-        'system for GAPS account is $generatedOTP \nDo not share this code with anyone.';
+        'system for GAPS (ASFGAPS) account is: $generatedOTP \nDo not share this code with anyone.';
     final String url =
-        'http://clientlogin.bulksmsgh.com/smsapi?key=$apiKey&to=$phoneNumber&msg=$message&sender_id=$senderId';
+        'https://clientlogin.bulksmsgh.com/smsapi?key=$apiKey&to=$phoneNumber&msg=$message&sender_id=$senderId';
 
     print("//////requesting");
 
@@ -146,6 +159,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
           prefs.setString("id", userId);
           prefs.setString("phoneNumber", phoneNumber);
           prefs.setString("role", role);
+          prefs.setString("logged", "true");
 
           setState(() {
             loading = false;
@@ -188,8 +202,12 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
     }
   }
 
-  Future<void> saveUserDetails(BuildContext context, String name, String id, String phoneNumber, String role) async {
+  Future<void> saveUserDetails(BuildContext context, String name, String id,
+      String phoneNumber, String role) async {
     try {
+      setState(() {
+        loading = true;
+      });
       // Check if the ID exists in the 'ids' table and the roles match
       final idSnapshot = await FirebaseFirestore.instance
           .collection('ids')
@@ -198,6 +216,9 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
           .get();
 
       if (idSnapshot.docs.isEmpty) {
+        setState(() {
+          loading = false;
+        });
         showDialog(
           context: context,
           builder: (context) {
@@ -217,6 +238,9 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
           .get();
 
       if (userSnapshot.docs.isNotEmpty) {
+        setState(() {
+          loading = false;
+        });
         showDialog(
           context: context,
           builder: (context) {
@@ -243,12 +267,19 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       prefs.setString("id", id);
       prefs.setString("phoneNumber", phoneNumber);
       prefs.setString("role", role);
+      prefs.setString("logged", "true");
 
+      setState(() {
+        loading = false;
+      });
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
       );
     } catch (e) {
+      setState(() {
+        loading = false;
+      });
       showDialog(
         context: context,
         builder: (context) {
@@ -263,18 +294,17 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
 
   String generateOTP() {
     var rng = Random();
-    print("Range == $rng");
-    return (rng.nextInt(900000) + 100000).toString();
+    return (rng.nextInt(9000) + 1000).toString();
   }
 
   @override
   void initState() {
     super.initState();
-
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 750),
     );
+    getData();
   }
 
   @override
@@ -292,129 +322,135 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       backgroundColor: Colors.white,
       body: MediaQuery.of(context).size.width >= 1000
           ? Stack(
-        fit: StackFit.loose,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Container(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width / 2,
-                color: Colors.white,
-                child: const SliderWidget(),
-              ),
-              Container(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width / 2,
-                color: bgColor,
-                child: Center(
-                  child: Card(
-                    //elevation: 5,
-                    color: bgColor,
-                    child: Container(
-                      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-                      width: MediaQuery.of(context).size.width / 3,
-                      height: MediaQuery.of(context).size.height / 1.1,
-                      child: Column(
-                        children: <Widget>[
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Image.asset(
-                            "assets/logo/logo_icon.png",
-                            height: 50,
-                          ),
-                          richText(20),
-                          SizedBox(height: 10.0),
-                          Flexible(
-                            child: Stack(
-                              children: [
-                                SlideTransition(
-                                  position: _animationController!.drive(tweenRight),
-                                  child: Stack(
-                                    fit: StackFit.loose,
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      _loginScreen(context),
-                                    ],
-                                  ),
+              fit: StackFit.loose,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Container(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width / 2,
+                      color: Colors.white,
+                      child: const SliderWidget(),
+                    ),
+                    Container(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width / 2,
+                      color: bgColor,
+                      child: Center(
+                        child: Card(
+                          //elevation: 5,
+                          color: bgColor,
+                          child: Container(
+                            padding: const EdgeInsets.only(
+                                left: 20, right: 20, bottom: 10),
+                            width: MediaQuery.of(context).size.width / 3,
+                            height: MediaQuery.of(context).size.height / 1.1,
+                            child: Column(
+                              children: <Widget>[
+                                const SizedBox(
+                                  height: 10,
                                 ),
-                                SlideTransition(
-                                  position: _animationController!.drive(tweenLeft),
+                                Image.asset(
+                                  "assets/logo/logo_icon.png",
+                                  height: 50,
+                                ),
+                                richText(20),
+                                SizedBox(height: 10.0),
+                                Flexible(
                                   child: Stack(
-                                    fit: StackFit.loose,
-                                    clipBehavior: Clip.none,
                                     children: [
-                                      _registerScreen(context),
+                                      SlideTransition(
+                                        position: _animationController!
+                                            .drive(tweenRight),
+                                        child: Stack(
+                                          fit: StackFit.loose,
+                                          clipBehavior: Clip.none,
+                                          children: [
+                                            _loginScreen(context),
+                                          ],
+                                        ),
+                                      ),
+                                      SlideTransition(
+                                        position: _animationController!
+                                            .drive(tweenLeft),
+                                        child: Stack(
+                                          fit: StackFit.loose,
+                                          clipBehavior: Clip.none,
+                                          children: [
+                                            _registerScreen(context),
+                                          ],
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              )
-            ],
-          ),
-        ],
-      )
-          : Container(
-        height: MediaQuery.of(context).size.height,
-        color: bgColor,
-        child: Center(
-          child: Card(
-            elevation: 5,
-            color: bgColor,
-            child: Container(
-              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-              width: MediaQuery.of(context).size.width / 1.4,
-              height: MediaQuery.of(context).size.height / 1.1,
-              child: Column(
-                children: <Widget>[
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Image.asset(
-                    "assets/logo/logo_icon.png",
-                    height: 50,
-                  ),
-                  richText(20),
-                  const SizedBox(height: 10.0),
-                  Flexible(
-                    child: Stack(
-                      children: [
-                        SlideTransition(
-                          position: _animationController!.drive(tweenRight),
-                          child: Stack(
-                            fit: StackFit.loose,
-                            clipBehavior: Clip.none,
-                            children: [
-                              _loginScreen(context),
-                            ],
-                          ),
                         ),
-                        SlideTransition(
-                          position: _animationController!.drive(tweenLeft),
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            )
+          : Container(
+              height: MediaQuery.of(context).size.height,
+              color: bgColor,
+              child: Center(
+                child: Card(
+                  elevation: 5,
+                  color: bgColor,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.only(left: 30, right: 30, bottom: 10),
+                    width: MediaQuery.of(context).size.width / 1.4,
+                    height: MediaQuery.of(context).size.height / 1.1,
+                    child: Column(
+                      children: <Widget>[
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Image.asset(
+                          "assets/logo/logo_icon.png",
+                          height: 50,
+                        ),
+                        richText(20),
+                        const SizedBox(height: 10.0),
+                        Flexible(
                           child: Stack(
-                            fit: StackFit.loose,
-                            clipBehavior: Clip.none,
                             children: [
-                              _registerScreen(context),
+                              SlideTransition(
+                                position:
+                                    _animationController!.drive(tweenRight),
+                                child: Stack(
+                                  fit: StackFit.loose,
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    _loginScreen(context),
+                                  ],
+                                ),
+                              ),
+                              SlideTransition(
+                                position:
+                                    _animationController!.drive(tweenLeft),
+                                child: Stack(
+                                  fit: StackFit.loose,
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    _registerScreen(context),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -424,78 +460,85 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       constraints: BoxConstraints(
         minHeight: MediaQuery.of(context).size.height - 0.0,
       ),
-      child: Form(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(height: 50,),
-            InputWidget(
-              kController: nameController,
-              keyboardType: TextInputType.text,
-              onSaved: (String? value) {},
-              onChanged: (String? value) {},
-              validator: (String? value) {
-                return (value != null && value.contains('@'))
-                    ? 'Do not use the @ char.'
-                    : null;
-              },
-              topLabel: "Name",
-              hintText: "Enter full Name",
-            ),
-            SizedBox(height: 8.0),
-            InputWidget(
-              kController: idController,
-              keyboardType: TextInputType.text,
-              onSaved: (String? value) {},
-              onChanged: (String? value) {},
-              validator: (String? value) {
-                return (value != null && value.contains('@'))
-                    ? 'Do not use the @ char.'
-                    : null;
-              },
-              topLabel: "ID",
-              hintText: "Enter Staff Id",
-            ),
-            SizedBox(height: 24.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Checkbox(
-                      value: isChecked,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          isChecked = value!;
-                        });
-                      },
-                    ),
-                    const Text("Extension officer")
-                  ],
+      child: SingleChildScrollView(
+        child: Form(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(
+                height: 50,
+              ),
+              InputWidget(
+                kController: nameController,
+                keyboardType: TextInputType.text,
+                onSaved: (String? value) {},
+                onChanged: (String? value) {},
+                validator: (String? value) {
+                  return (value != null && value.contains('@'))
+                      ? 'Do not use the @ char.'
+                      : null;
+                },
+                topLabel: "Name",
+                hintText: "Enter full Name",
+              ),
+              SizedBox(height: 8.0),
+              InputWidget(
+                kController: idController,
+                keyboardType: TextInputType.text,
+                onSaved: (String? value) {},
+                onChanged: (String? value) {},
+                validator: (String? value) {
+                  return (value != null && value.contains('@'))
+                      ? 'Do not use the @ char.'
+                      : null;
+                },
+                topLabel: "ID",
+                hintText: "Enter Staff Id",
+              ),
+              SizedBox(height: 24.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Checkbox(
+                        value: isChecked,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            isChecked = value!;
+                          });
+                        },
+                      ),
+                      const Text("Extension officer")
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24.0),
+              WiperLoading(
+                loading: loading,
+                child: AppButton(
+                  type: ButtonType.PRIMARY,
+                  text: "Sign Up",
+                  onPressed: () async {
+                    String role = isChecked ? "extension officer" : "admin";
+                    await saveUserDetails(
+                      context,
+                      nameController.text,
+                      idController.text,
+                      number,
+                      role,
+                    );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                    );
+                  },
                 ),
-              ],
-            ),
-            const SizedBox(height: 24.0),
-            AppButton(
-              type: ButtonType.PRIMARY,
-              text: "Sign Up",
-              onPressed: () async {
-                String role = isChecked ? "extension officer" : "admin";
-                await saveUserDetails(
-                  context,
-                  nameController.text,
-                  idController.text,
-                  number,
-                  role,
-                );
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomeScreen()),
-                );
-              },
-            ),
-            const SizedBox(height: 24.0),
-          ],
+              ),
+              const SizedBox(height: 24.0),
+            ],
+          ),
         ),
       ),
     );
@@ -507,77 +550,81 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       constraints: BoxConstraints(
         minHeight: MediaQuery.of(context).size.height - 0.0,
       ),
-      child: Form(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 100.0),
-            IntlPhoneField(
-              initialCountryCode: 'GH',
-              decoration: InputDecoration(
-                fillColor: const Color.fromRGBO(74, 77, 84, 0.2),
-                labelText: 'Phone Number',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(4.0),
-                  borderSide: const BorderSide(),
+      child: SingleChildScrollView(
+        child: Form(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 100.0),
+              IntlPhoneField(
+                initialCountryCode: 'GH',
+                decoration: InputDecoration(
+                  fillColor: const Color.fromRGBO(74, 77, 84, 0.2),
+                  labelText: 'Phone Number',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(4.0),
+                    borderSide: const BorderSide(),
+                  ),
                 ),
-              ),
-              languageCode: "en",
-              onChanged: (phone) {
-                setState(() {
-                  number = phone.completeNumber;
-                });
-                print(number);
-              },
-              onCountryChanged: (country) {
-                print('Country changed to: ' + country.name);
-              },
-            ),
-            const SizedBox(height: 50.0),
-            _codeSent == true
-                ? OtpTextField(
-              numberOfFields: 6,
-              borderColor: Color(0xFF512DA8),
-              showFieldAsBox: true,
-              onCodeChanged: (String code) {},
-              onSubmit: (String verificationCode) {
-                setState(() {
-                  otp = verificationCode;
-                });
-                print(otp);
-                verifyOTP();
-              },
-            )
-                : Container(),
-            const SizedBox(height: 50.0),
-            WiperLoading(
-              loading: loading,
-              child: AppButton(
-                type: ButtonType.PRIMARY,
-                text: _isButtonDisabled
-                    ? 'Resend code in ($_countdown)'
-                    : 'Send code',
-                onPressed: _isButtonDisabled
-                    ? null
-                    : () {
-                  if (number.length < 13) {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return const AlertDialog(
-                            title: Text("Invalid Number"),
-                            content: Text('Please enter a valid phone number'),
-                          );
-                        });
-                  } else {
-                    sendOTP(number);
-                    startTimer();
-                  }
+                languageCode: "en",
+                onChanged: (phone) {
+                  setState(() {
+                    number = phone.completeNumber;
+                  });
+                  print(number);
+                },
+                onCountryChanged: (country) {
+                  print('Country changed to: ${country.name}');
                 },
               ),
-            ),
-            SizedBox(height: 24.0),
-          ],
+              const SizedBox(height: 50.0),
+              _codeSent == true
+                  ? OtpTextField(
+                      numberOfFields: 4,
+                      borderColor: Color(0xFF512DA8),
+                      showFieldAsBox: true,
+                      fieldWidth: 38,
+                      onCodeChanged: (String code) {},
+                      onSubmit: (String verificationCode) {
+                        setState(() {
+                          otp = verificationCode;
+                        });
+                        print(otp);
+                        verifyOTP();
+                      },
+                    )
+                  : Container(),
+              const SizedBox(height: 50.0),
+              WiperLoading(
+                loading: loading,
+                child: AppButton(
+                  type: ButtonType.PRIMARY,
+                  text: _isButtonDisabled
+                      ? 'Resend code in ($_countdown)'
+                      : 'Send code',
+                  onPressed: _isButtonDisabled
+                      ? null
+                      : () {
+                          if (number.length < 13 && _isValidPhoneNumber(number)) {
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const AlertDialog(
+                                    title: Text("Invalid Number"),
+                                    content:
+                                        Text('Please enter a valid phone number'),
+                                  );
+                                });
+                          } else {
+                            sendOTP(number);
+                            startTimer();
+                          }
+                        },
+                ),
+              ),
+              const SizedBox(height: 24.0),
+            ],
+          ),
         ),
       ),
     );
@@ -611,10 +658,10 @@ Widget richText(double fontSize) {
   );
 }
 
-
 Future<void> insertIdsIntoFirestore() async {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
-  final List<String> roles = List.generate(40, (index) => index < 20 ? 'admin' : 'extension officer');
+  final List<String> roles =
+      List.generate(40, (index) => index < 20 ? 'admin' : 'extension officer');
   final Random random = Random();
 
   // Function to generate a single ID
