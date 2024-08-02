@@ -3,15 +3,15 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 Color getRoleColor(String? role) {
-  if (role == "Doctor") {
+  if (role == "A") {
     return Colors.green;
-  } else if (role == "Software Architect") {
+  } else if (role == "B") {
     return Colors.red;
-  } else if (role == "Software Engineer") {
+  } else if (role == "C") {
     return Colors.blueAccent;
-  } else if (role == "Solution Architect") {
+  } else if (role == "D") {
     return Colors.amberAccent;
-  } else if (role == "Project Manager") {
+  } else if (role == "E") {
     return Colors.cyanAccent;
   } else if (role == "Business Analyst") {
     return Colors.deepPurpleAccent;

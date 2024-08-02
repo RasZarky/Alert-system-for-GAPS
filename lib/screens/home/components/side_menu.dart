@@ -1,14 +1,40 @@
 import 'package:alert_system_for_gaps/core/constants/color_constants.dart';
+import 'package:alert_system_for_gaps/farmers/farmers.dart';
+import 'package:alert_system_for_gaps/screens/home/home_screen.dart';
 import 'package:alert_system_for_gaps/screens/login/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SideMenu extends StatelessWidget {
+class SideMenu extends StatefulWidget {
   const SideMenu({
     Key? key,
   }) : super(key: key);
+
+  @override
+  State<SideMenu> createState() => _SideMenuState();
+}
+
+class _SideMenuState extends State<SideMenu> {
+
+  String role = "loading";
+
+  Future<void> getData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? newRole = prefs.getString("role");
+    String? newName = prefs.getString("name");
+    print("/////////////////////////// $newRole");
+    setState(() {
+      role = newRole!;
+    });
+  }
+
+  @override
+  void initState() {
+    getData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,28 +63,36 @@ class SideMenu extends StatelessWidget {
             DrawerListTile(
               title: "Dashboard",
               svgSrc: "assets/icons/menu_dashbord.svg",
-              press: () {},
+              press: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+              },
             ),
             DrawerListTile(
               title: "Tasks",
               svgSrc: "assets/icons/menu_tran.svg",
               press: () {},
             ),
+            role == "admin" ?
+                Container() :
             DrawerListTile(
               title: "Farmers",
               svgSrc: "assets/icons/menu_task.svg",
-              press: () {},
+              press: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const AllFarmers()));
+              },
             ),
+            role == "admin" ?
             DrawerListTile(
               title: "Extension officers",
               svgSrc: "assets/icons/menu_doc.svg",
               press: () {},
-            ),
+            ) : Container(),
+            role == "admin" ?
             DrawerListTile(
               title: "Admins",
               svgSrc: "assets/icons/menu_store.svg",
               press: () {},
-            ),
+            ) : Container(),
             DrawerListTile(
               title: "Calender",
               svgSrc: "assets/icons/menu_notification.svg",
