@@ -605,7 +605,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                   onPressed: _isButtonDisabled
                       ? null
                       : () {
-                          if (number.length < 13 && _isValidPhoneNumber(number)) {
+                          if (number.length < 13) {
                             showDialog(
                                 context: context,
                                 builder: (context) {

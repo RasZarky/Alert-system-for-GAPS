@@ -42,9 +42,7 @@ class _HeaderState extends State<Header> {
         if (!Responsive.isDesktop(context))
           IconButton(
             icon: Icon(Icons.menu),
-            onPressed: () {
-              widget.onTap;
-            },
+            onPressed: widget.onTap,
           ),
         if (!Responsive.isMobile(context))
           Column(
