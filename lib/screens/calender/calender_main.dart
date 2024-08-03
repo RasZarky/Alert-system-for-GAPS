@@ -81,7 +81,7 @@ class CalendersMainPageState extends State<CalendersMainPage> {
               List<Meeting> list = snapshot.data!.docs.map((e) {
                 var data = e.data() as Map<String, dynamic>;
                 return Meeting(
-                  eventName: "Class '${data['class']}' (${data["activity"]})",
+                  eventName: "Class '${data['class']}' (${data["activity"]}).",
                   from: (data['startDate'] as Timestamp).toDate(),
                   to: (data['endDate'] as Timestamp).toDate(),
                   background: _colorCollection[random.nextInt(9)],
