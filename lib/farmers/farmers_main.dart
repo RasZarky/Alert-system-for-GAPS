@@ -1,8 +1,10 @@
 import 'package:alert_system_for_gaps/core/constants/color_constants.dart';
 import 'package:alert_system_for_gaps/farmers/farmers_widget.dart';
+import 'package:alert_system_for_gaps/farmers/admin_farmers_widget.dart';
 import 'package:alert_system_for_gaps/farmers/new_farmer_dialog.dart';
 import 'package:alert_system_for_gaps/responsive.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FarmersMainPage extends StatefulWidget {
   const FarmersMainPage({super.key});
@@ -12,6 +14,23 @@ class FarmersMainPage extends StatefulWidget {
 }
 
 class _FarmersMainPageState extends State<FarmersMainPage> {
+  String role = "";
+
+  Future<void> getData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? newRole = prefs.getString("role");
+    print("/////////////////////////// $newRole");
+    setState(() {
+      role = newRole!;
+    });
+  }
+
+  @override
+  void initState() {
+    getData();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,12 +41,13 @@ class _FarmersMainPageState extends State<FarmersMainPage> {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
-                Text(
-                  "All Farmers",
-                  style: Theme.of(context).textTheme.headline6?.copyWith(
-                      color: Colors.white
-                  ),
-                ),
+              Text(
+                "All Farmers",
+                style: Theme.of(context)
+                    .textTheme
+                    .headline6
+                    ?.copyWith(color: Colors.white),
+              ),
             ],
           ),
         ),
@@ -35,33 +55,42 @@ class _FarmersMainPageState extends State<FarmersMainPage> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
-          child: SingleChildScrollView(child: Column(
+          child: SingleChildScrollView(
+              child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              ElevatedButton.icon(
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: defaultPadding * 1.5,
-                    vertical:
-                    defaultPadding / (Responsive.isMobile(context) ? 2 : 1),
-                  ),
-                ),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return const NewFarmerDialog();
-                    },
-                  );
-                },
-                icon: const Icon(Icons.add),
-                label: const Text(
-                  "Add New Farmer",
-                ),
+              role == "extension officer"
+                  ? ElevatedButton.icon(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: defaultPadding * 1.5,
+                          vertical: defaultPadding /
+                              (Responsive.isMobile(context) ? 2 : 1),
+                        ),
+                      ),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return const NewFarmerDialog();
+                          },
+                        );
+                      },
+                      icon: const Icon(Icons.add),
+                      label: const Text(
+                        "Add New Farmer",
+                      ),
+                    )
+                  : Container(),
+              const SizedBox(
+                height: defaultPadding,
               ),
-              SizedBox(height: defaultPadding,),
-              FarmersWidget(),
+              role == "extension officer"
+                  ? FarmersWidget()
+                  : role == "admin"
+                      ? AdminFarmersWidget()
+                      : Container(),
             ],
           )),
         ),

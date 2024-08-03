@@ -72,8 +72,6 @@ class _SideMenuState extends State<SideMenu> {
               svgSrc: "assets/icons/menu_tran.svg",
               press: () {},
             ),
-            role == "admin" ?
-                Container() :
             DrawerListTile(
               title: "Farmers",
               svgSrc: "assets/icons/menu_task.svg",
