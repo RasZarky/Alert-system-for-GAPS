@@ -1,24 +1,22 @@
 import 'package:alert_system_for_gaps/core/constants/color_constants.dart';
-import 'package:alert_system_for_gaps/core/utils/colorful_tag.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:colorize_text_avatar/colorize_text_avatar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:widget_loading/widget_loading.dart';
 
 
-class OfficersWidget extends StatefulWidget {
-  OfficersWidget({
+class AdminsWidget extends StatefulWidget {
+  AdminsWidget({
     Key? key,
   }) : super(key: key);
 
   @override
-  State<OfficersWidget> createState() => _OfficersWidgetState();
+  State<AdminsWidget> createState() => _AdminsWidgetState();
 }
 
-class _OfficersWidgetState extends State<OfficersWidget> {
+class _AdminsWidgetState extends State<AdminsWidget> {
   List<QueryDocumentSnapshot> _allItems = [];
   List<QueryDocumentSnapshot> _filteredItems = [];
   final TextEditingController _searchController = TextEditingController();
@@ -31,7 +29,7 @@ class _OfficersWidgetState extends State<OfficersWidget> {
       loading = true;
     });
 
-    _firestore.collection('users').where("role", isEqualTo: "extension officer").snapshots().listen((snapshot) {
+    _firestore.collection('users').where("role", isEqualTo: "admin").snapshots().listen((snapshot) {
       setState(() {
         _allItems = snapshot.docs;
         _filteredItems = _allItems;
@@ -87,7 +85,7 @@ class _OfficersWidgetState extends State<OfficersWidget> {
             children: [
               Expanded(
                 child: Text(
-                  "Extension Officers(${_filteredItems.length})",
+                  "Admins(${_filteredItems.length})",
                   style: Theme.of(context)
                       .textTheme
                       .subtitle1
@@ -101,7 +99,7 @@ class _OfficersWidgetState extends State<OfficersWidget> {
                   color: Colors.white,
                 ),
                 decoration: InputDecoration(
-                  hintText: "Search Officer name, id,number...",
+                  hintText: "Search Officer admin, id,number...",
                   fillColor: bgColor,
                   filled: true,
                   border: const OutlineInputBorder(
@@ -150,7 +148,7 @@ class _OfficersWidgetState extends State<OfficersWidget> {
                             height: 40,
                           ),
                           Text(
-                            "No Officers",
+                            "No admins",
                             style: TextStyle(fontSize: 16, color: Colors.white),
                             textAlign: TextAlign.center,
                           )
@@ -192,14 +190,6 @@ class _OfficersWidgetState extends State<OfficersWidget> {
                                   (index) => recentUserDataRow(
                                     _filteredItems[index].data() as Map<String, dynamic>,
                                     context,
-                                        () {
-                                      FirebaseFirestore.instance
-                                          .collection('farmers')
-                                          .doc(_filteredItems[index].id)
-                                          .delete();
-
-                                      Navigator.pop(context);
-                                    },
                                   ),
                                 ),
                               ),
@@ -216,8 +206,7 @@ class _OfficersWidgetState extends State<OfficersWidget> {
   }
 }
 
-DataRow recentUserDataRow(Map<String, dynamic> userInfo, BuildContext context,
-    void Function() delete) {
+DataRow recentUserDataRow(Map<String, dynamic> userInfo, BuildContext context) {
   return DataRow(
     cells: [
       DataCell(
@@ -255,46 +244,28 @@ DataRow recentUserDataRow(Map<String, dynamic> userInfo, BuildContext context,
       )),
       DataCell(
         TextButton(
-          child: const Text("Delete",
+          child: const Text("Update",
               style: TextStyle(color: Colors.redAccent)),
           onPressed: () {
             showDialog(
                 context: context,
                 builder: (_) {
-                  return AlertDialog(
+                  return const AlertDialog(
                       backgroundColor: secondaryColor,
                       title: Center(
                         child: Column(
                           children: [
-                            const Icon(Icons.warning_outlined,
+                            Icon(Icons.warning_outlined,
                                 size: 36, color: Colors.red),
-                            const SizedBox(height: 20),
+                            SizedBox(height: 20),
                             Text(
-                              "Are you sure you want to delete: '${userInfo["name"]}'",
-                              style: const TextStyle(color: Colors.white),
+                              "Action not allowed",
+                              style: TextStyle(color: Colors.white),
                             ),
                           ],
                         ),
                       ),
-                      content: SizedBox(
-                        height: 300,
-                        child: Column(
-                          children: [
-                            ElevatedButton.icon(
-                                icon: const Icon(
-                                  Icons.delete,
-                                  size: 14,
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red),
-                                onPressed: delete,
-                                label: const Text("Delete")),
-                            const SizedBox(
-                              height: 30,
-                            ),
-                          ],
-                        ),
-                      ));
+                  );
                 });
           },
           // Delete

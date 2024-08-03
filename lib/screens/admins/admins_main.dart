@@ -1,17 +1,17 @@
 import 'package:alert_system_for_gaps/core/constants/color_constants.dart';
+import 'package:alert_system_for_gaps/screens/admins/admins_widget.dart';
 import 'package:alert_system_for_gaps/screens/extensionOfficer/officers_widget.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-class OfficersMainPage extends StatefulWidget {
-  const OfficersMainPage({super.key});
+class AdminsMainPage extends StatefulWidget {
+  const AdminsMainPage({super.key});
 
   @override
-  State<OfficersMainPage> createState() => _OfficersMainPageState();
+  State<AdminsMainPage> createState() => _AdminsMainPageState();
 }
 
-class _OfficersMainPageState extends State<OfficersMainPage> {
-
+class _AdminsMainPageState extends State<AdminsMainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +23,7 @@ class _OfficersMainPageState extends State<OfficersMainPage> {
           child: Row(
             children: [
               Text(
-                "All Extension Officers",
+                "All Admins",
                 style: Theme.of(context)
                     .textTheme
                     .headline6
@@ -38,17 +38,14 @@ class _OfficersMainPageState extends State<OfficersMainPage> {
           padding: const EdgeInsets.all(15.0),
           child: SingleChildScrollView(
               child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-
-              const SizedBox(
-                height: defaultPadding,
-              ),
-                ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: 550
-                    ),
-                    child: OfficersWidget())
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const SizedBox(
+                    height: defaultPadding,
+                  ),
+                  ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 550),
+                      child: AdminsWidget())
             ],
           )),
         ),

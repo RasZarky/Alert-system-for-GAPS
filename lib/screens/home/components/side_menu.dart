@@ -1,4 +1,5 @@
 import 'package:alert_system_for_gaps/core/constants/color_constants.dart';
+import 'package:alert_system_for_gaps/screens/admins/admins.dart';
 import 'package:alert_system_for_gaps/screens/extensionOfficer/officers.dart';
 import 'package:alert_system_for_gaps/screens/farmers/farmers.dart';
 import 'package:alert_system_for_gaps/screens/home/home_screen.dart';
@@ -92,8 +93,11 @@ class _SideMenuState extends State<SideMenu> {
             DrawerListTile(
               title: "Admins",
               svgSrc: "assets/icons/menu_store.svg",
-              press: () {},
+              press: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const AllAdmins()));
+              },
             ) : Container(),
+
             DrawerListTile(
               title: "Calender",
               svgSrc: "assets/icons/menu_notification.svg",
