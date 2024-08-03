@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:alert_system_for_gaps/screens/calender/new_task_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class CalendersMainPage extends StatefulWidget {
@@ -14,8 +15,21 @@ class CalendersMainPageState extends State<CalendersMainPage> {
   final List<String> options = <String>['Add'];
   final databaseReference = FirebaseFirestore.instance;
 
+  String role = "";
+
+  Future<void> getData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? newRole = prefs.getString("role");
+    String? newName = prefs.getString("name");
+    print("/////////////////////////// $newRole");
+    setState(() {
+      role = newRole!;
+    });
+  }
+
   @override
   void initState() {
+    getData();
     _initializeEventColor();
     super.initState();
   }
@@ -28,6 +42,7 @@ class CalendersMainPageState extends State<CalendersMainPage> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Container(),
+              role == "admin" ?
               PopupMenuButton<String>(
                 icon: Icon(Icons.settings),
                 itemBuilder: (BuildContext context) => options.map((String choice) {
@@ -61,6 +76,7 @@ class CalendersMainPageState extends State<CalendersMainPage> {
                   }
                 },
               )
+                  : Container()
             ],
           ),
         ),
