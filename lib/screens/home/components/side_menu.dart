@@ -1,5 +1,6 @@
 import 'package:alert_system_for_gaps/core/constants/color_constants.dart';
-import 'package:alert_system_for_gaps/farmers/farmers.dart';
+import 'package:alert_system_for_gaps/screens/extensionOfficer/officers.dart';
+import 'package:alert_system_for_gaps/screens/farmers/farmers.dart';
 import 'package:alert_system_for_gaps/screens/home/home_screen.dart';
 import 'package:alert_system_for_gaps/screens/login/login_screen.dart';
 import 'package:flutter/material.dart';
@@ -83,7 +84,9 @@ class _SideMenuState extends State<SideMenu> {
             DrawerListTile(
               title: "Extension officers",
               svgSrc: "assets/icons/menu_doc.svg",
-              press: () {},
+              press: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const AllOfficers()));
+              },
             ) : Container(),
             role == "admin" ?
             DrawerListTile(

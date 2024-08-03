@@ -1,8 +1,8 @@
 import 'package:alert_system_for_gaps/core/constants/color_constants.dart';
-import 'package:alert_system_for_gaps/farmers/farmers_widget.dart';
-import 'package:alert_system_for_gaps/farmers/admin_farmers_widget.dart';
-import 'package:alert_system_for_gaps/farmers/new_farmer_dialog.dart';
 import 'package:alert_system_for_gaps/responsive.dart';
+import 'package:alert_system_for_gaps/screens/farmers/admin_farmers_widget.dart';
+import 'package:alert_system_for_gaps/screens/farmers/farmers_widget.dart';
+import 'package:alert_system_for_gaps/screens/farmers/new_farmer_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
