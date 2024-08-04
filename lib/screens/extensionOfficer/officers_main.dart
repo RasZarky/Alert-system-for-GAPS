@@ -1,4 +1,6 @@
 import 'package:alert_system_for_gaps/core/constants/color_constants.dart';
+import 'package:alert_system_for_gaps/responsive.dart';
+import 'package:alert_system_for_gaps/screens/extensionOfficer/new_officer_dialog.dart';
 import 'package:alert_system_for_gaps/screens/extensionOfficer/officers_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +43,28 @@ class _OfficersMainPageState extends State<OfficersMainPage> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
 
+              ElevatedButton.icon(
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: defaultPadding * 1.5,
+                    vertical: defaultPadding /
+                        (Responsive.isMobile(context) ? 2 : 1),
+                  ),
+                ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return const NewOfficerDialog();
+                    },
+                  );
+                },
+                icon: const Icon(Icons.add),
+                label: const Text(
+                  "Add New Extension Officer",
+                ),
+              ),
               const SizedBox(
                 height: defaultPadding,
               ),
