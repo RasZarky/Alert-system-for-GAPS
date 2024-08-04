@@ -4,8 +4,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class Chart extends StatefulWidget {
+  final Map<String, Map<String, double>> taskStatistics;
+  final int totalTasks;
+
   const Chart({
     Key? key,
+    required this.taskStatistics,
+    required this.totalTasks,
   }) : super(key: key);
 
   @override
@@ -14,6 +19,7 @@ class Chart extends StatefulWidget {
 
 class _ChartState extends State<Chart> {
   int touchedIndex = -1;
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -22,41 +28,36 @@ class _ChartState extends State<Chart> {
         aspectRatio: 1.3,
         child: Row(
           children: <Widget>[
-            const SizedBox(
-              height: 18,
-            ),
+            const SizedBox(height: 18),
             Expanded(
               child: AspectRatio(
                 aspectRatio: 1,
                 child: PieChart(
                   PieChartData(
-                      pieTouchData:
-                          PieTouchData(touchCallback: (pieTouchResponse) {
-                        setState(() {
-                          final desiredTouch = pieTouchResponse.touchInput
-                                  is! PointerExitEvent &&
-                              pieTouchResponse.touchInput is! PointerUpEvent;
-                          if (desiredTouch &&
-                              pieTouchResponse.touchedSection != null) {
-                            touchedIndex = pieTouchResponse
-                                .touchedSection!.touchedSectionIndex;
-                          } else {
-                            touchedIndex = -1;
-                          }
-                        });
-                      }),
-                      borderData: FlBorderData(
-                        show: false,
-                      ),
-                      sectionsSpace: 0,
-                      centerSpaceRadius: 40,
-                      sections: showingSections()),
+                    pieTouchData: PieTouchData(
+                        touchCallback: (pieTouchResponse) {
+                          setState(() {
+                            final desiredTouch = pieTouchResponse.touchInput
+                            is! PointerExitEvent &&
+                                pieTouchResponse.touchInput is! PointerUpEvent;
+                            if (desiredTouch &&
+                                pieTouchResponse.touchedSection != null) {
+                              touchedIndex = pieTouchResponse
+                                  .touchedSection!.touchedSectionIndex;
+                            } else {
+                              touchedIndex = -1;
+                            }
+                          });
+                        }),
+                    borderData: FlBorderData(show: false),
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 40,
+                    sections: showingSections(),
+                  ),
                 ),
               ),
             ),
-            const SizedBox(
-              width: 28,
-            ),
+            const SizedBox(width: 28),
           ],
         ),
       ),
@@ -64,91 +65,41 @@ class _ChartState extends State<Chart> {
   }
 
   List<PieChartSectionData> showingSections() {
-    return List.generate(4, (i) {
-      final isTouched = i == touchedIndex;
-      final fontSize = isTouched ? 25.0 : 16.0;
-      final radius = isTouched ? 60.0 : 50.0;
-      switch (i) {
-        case 0:
-          return PieChartSectionData(
-            color: const Color(0xff0293ee),
-            value: 40,
-            title: '28.3%',
-            radius: radius,
-            titleStyle: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xffffffff)),
-          );
-        case 1:
-          return PieChartSectionData(
-            color: const Color(0xfff8b250),
-            value: 30,
-            title: '16.7%',
-            radius: radius,
-            titleStyle: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xffffffff)),
-          );
-        case 2:
-          return PieChartSectionData(
-            color: const Color(0xff845bef),
-            value: 15,
-            title: '22.4%',
-            radius: radius,
-            titleStyle: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xffffffff)),
-          );
-        case 3:
-          return PieChartSectionData(
-            color: const Color(0xff13d38e),
-            value: 15,
-            title: '2.3%',
-            radius: radius,
-            titleStyle: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xffffffff)),
-          );
-        default:
-          throw Error();
-      }
-    });
+    List<PieChartSectionData> sections = [];
+    for (var i = 0; i < widget.taskStatistics.length; i++) {
+      String key = String.fromCharCode('A'.codeUnitAt(0) + i); // Converts 0 to 'A', 1 to 'B', etc.
+      double percentage = widget.taskStatistics[key]!['percentage']!;
+      double count = widget.taskStatistics[key]!['count']!;
+
+      sections.add(PieChartSectionData(
+        color: getColorForClass(key), // You need to create this method to return the color based on the class.
+        value: percentage,
+        title: '${percentage.toStringAsFixed(1)}%',
+        radius: 50,
+        titleStyle: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: const Color(0xffffffff),
+        ),
+      ));
+    }
+    return sections;
+  }
+
+  Color getColorForClass(String className) {
+    switch (className) {
+      case 'A':
+        return Colors.green;
+      case 'B':
+        return Colors.red;
+      case 'C':
+        return Colors.blueAccent;
+      case 'D':
+        return Colors.amberAccent;
+      case 'E':
+        return Colors.cyanAccent;
+      default:
+        return Colors.grey; // Default color
+    }
   }
 }
-
-List<PieChartSectionData> paiChartSelectionDatas = [
-  PieChartSectionData(
-    color: primaryColor,
-    value: 25,
-    showTitle: false,
-    radius: 25,
-  ),
-  PieChartSectionData(
-    color: Color(0xFF26E5FF),
-    value: 20,
-    showTitle: false,
-    radius: 22,
-  ),
-  PieChartSectionData(
-    color: Color(0xFFFFCF26),
-    value: 10,
-    showTitle: false,
-    radius: 19,
-  ),
-  PieChartSectionData(
-    color: Color(0xFFEE2727),
-    value: 15,
-    showTitle: false,
-    radius: 16,
-  ),
-  PieChartSectionData(
-    color: primaryColor.withOpacity(0.1),
-    value: 25,
-    showTitle: false,
-    radius: 13,
-  ),
-];

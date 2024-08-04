@@ -12,7 +12,7 @@ class UserDetailsMiniCard extends StatelessWidget {
 
   final Color color;
   final String title, amountOfFiles;
-  final int numberOfIncrease;
+  final double numberOfIncrease;
 
   @override
   Widget build(BuildContext context) {

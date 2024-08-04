@@ -1,5 +1,6 @@
 import 'package:alert_system_for_gaps/core/constants/color_constants.dart';
 import 'package:alert_system_for_gaps/responsive.dart';
+import 'package:alert_system_for_gaps/screens/calender/new_task_dialog.dart';
 import 'package:alert_system_for_gaps/screens/dashboard/components/header.dart';
 import 'package:alert_system_for_gaps/screens/dashboard/components/mini_information_card.dart';
 import 'package:alert_system_for_gaps/screens/dashboard/components/recent_forums.dart';
@@ -27,12 +28,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           padding: EdgeInsets.all(defaultPadding),
           child:
           Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Header(onTap: widget.onTap),
               SizedBox(height: defaultPadding),
-              Center(
-                child: Text("Admin Page"),
-              )
+              // Center(
+              //   child: Text("Admin Page"),
+              // )
               // MiniInformation(),
               // SizedBox(height: defaultPadding),
               // Row(
@@ -59,7 +61,31 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               //     if (!Responsive.isMobile(context))
               //       Expanded(
               //         flex: 2,
-              //         child: UserDetailsWidget(),
+              //         child:
+                      ElevatedButton.icon(
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: defaultPadding * 1.5,
+                            vertical: defaultPadding /
+                                (Responsive.isMobile(context) ? 2 : 1),
+                                ),
+                              ),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return const NewTaskDialog();
+                                  },
+                                );
+                              },
+                              icon: const Icon(Icons.add),
+                              label: const Text(
+                                "Add New Task",
+                              ),
+              ),
+                      const SizedBox(height: defaultPadding,),
+                      const UserDetailsWidget(),
               //       ),
               //   ],
               // )
