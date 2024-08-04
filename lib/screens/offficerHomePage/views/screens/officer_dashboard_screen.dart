@@ -1,0 +1,401 @@
+library dashboard;
+
+import 'dart:async';
+import 'package:alert_system_for_gaps/core/constants/color_constants.dart';
+import 'package:alert_system_for_gaps/screens/calender/calenders.dart';
+import 'package:alert_system_for_gaps/screens/offficerHomePage/constans/app_constants.dart';
+import 'package:alert_system_for_gaps/screens/offficerHomePage/shared_components/card_task.dart';
+import 'package:alert_system_for_gaps/screens/offficerHomePage/shared_components/header_text.dart';
+import 'package:alert_system_for_gaps/screens/offficerHomePage/shared_components/list_task_assigned.dart';
+import 'package:alert_system_for_gaps/screens/offficerHomePage/shared_components/list_task_date.dart';
+import 'package:alert_system_for_gaps/screens/offficerHomePage/shared_components/responsive_builder.dart';
+import 'package:alert_system_for_gaps/screens/offficerHomePage/shared_components/simple_selection_button.dart';
+import 'package:alert_system_for_gaps/screens/offficerHomePage/shared_components/simple_user_profile.dart';
+import 'package:alert_system_for_gaps/screens/offficerHomePage/shared_components/task_progress.dart';
+import 'package:alert_system_for_gaps/screens/offficerHomePage/utils/helpers/app_helpers.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:widget_loading/widget_loading.dart';
+
+
+// component
+part '../components/header_weekly_task.dart';
+part '../components/task_menu.dart';
+part '../components/member.dart';
+part '../components/task_in_progress.dart';
+part '../components/weekly_task.dart';
+part '../components/task_group.dart';
+
+class OfficerDashboardScreen extends StatefulWidget {
+  const OfficerDashboardScreen({super.key});
+
+  @override
+  State<OfficerDashboardScreen> createState() => _OfficerDashboardScreenState();
+}
+
+class _OfficerDashboardScreenState extends State<OfficerDashboardScreen> {
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  bool loading = false;
+
+  Future<void> getData() async {
+    setState(() {
+      loading = true;
+    });
+    
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      loading = false;
+    });
+
+  }
+
+  void onPressedTask(int index, ListTaskAssignedData data) {}
+  void onPressedAssignTask(int index, ListTaskAssignedData data) {}
+  void onPressedMemberTask(int index, ListTaskAssignedData data) {}
+  void onPressedCalendar() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const AllCalenders()));
+  }
+  void onPressedTaskGroup(int index, ListTaskDateData data) {}
+
+  @override
+  void initState() {
+    getData();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+        child: ResponsiveBuilder(
+            mobileBuilder: (context, constraints) {
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTaskContent(),
+                    _buildCalendarContent(),
+                  ],
+                ),
+              );
+            },
+            tabletBuilder: (context, constraints) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Flexible(
+                    flex: constraints.maxWidth > 800 ? 8 : 7,
+                    child: SingleChildScrollView(
+                      controller: ScrollController(),
+                      child: _buildTaskContent(),
+                    ),
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    child: const VerticalDivider(),
+                  ),
+                  Flexible(
+                    flex: 4,
+                    child: SingleChildScrollView(
+                      controller: ScrollController(),
+                      child: _buildCalendarContent(),
+                    ),
+                  ),
+                ],
+              );
+            },
+            desktopBuilder: (context, constraints) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Flexible(
+                    flex: constraints.maxWidth > 1350 ? 10 : 9,
+                    child: SingleChildScrollView(
+                      controller: ScrollController(),
+                      child: _buildTaskContent(),
+                    ),
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    child: const VerticalDivider(),
+                  ),
+                  Flexible(
+                    flex: 4,
+                    child: SingleChildScrollView(
+                      controller: ScrollController(),
+                      child: _buildCalendarContent(),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+      )
+    ;
+  }
+
+
+  Widget _buildTaskContent() {
+
+    DateTime now = DateTime.now();
+    DateTime startOfDay = DateTime(now.year, now.month, now.day);
+    DateTime endOfDay = startOfDay.add(const Duration(days: 1));
+    DateTime startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    DateTime endOfWeek = startOfWeek.add(const Duration(days: 7));
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kSpacing),
+      child: Column(
+        children: [
+          const SizedBox(height: kSpacing),
+          Row(
+            children: [
+              Expanded(
+                child: HeaderText(
+                  DateTime.now().formatdMMMMY(),
+                ),
+              ),
+              const SizedBox(width: kSpacing / 2),
+              StreamBuilder<QuerySnapshot>(
+                stream: firestore
+                    .collection("tasks")
+                    // .where("tutorId", isEqualTo: user!.uid)
+                    .where("startDate", isGreaterThanOrEqualTo: startOfDay)
+                    .where('endDate', isLessThan: endOfDay)
+                    .snapshots(),
+                builder: (context, snapshot){
+                  if (snapshot.hasError) {
+                    return Center(child: Text("Error: ${snapshot.error}"));
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  List<QueryDocumentSnapshot> _AllItems = snapshot.data!.docs;
+                  int all = 0;
+                  int done = 0;
+                  if(snapshot.data != null){
+                    List<QueryDocumentSnapshot> _UnDoneItems = snapshot.data!.docs.where((item){
+                      final data = item.data() as Map<String, dynamic>;
+                      final status = data['status'] ?? "";
+                      return status.startsWith("done");
+                    }).toList();
+
+                      all = _AllItems.length;
+                      done = _UnDoneItems.length;
+
+                  }
+
+
+                  return  SizedBox(
+                    width: 200,
+                    child: WiperLoading(
+                        loading: loading,
+                        wiperColor: Colors.green,
+                        child: all != 0 ? TaskProgress(
+                        data: TaskProgressData(totalTask: all, totalCompleted: done),
+                    )
+                            : Container()
+                    ),
+                  );
+                },
+              )
+            ],
+          ),
+          const SizedBox(height: kSpacing),
+          StreamBuilder<QuerySnapshot>(
+            stream: firestore
+                .collection("tasks")
+                // .where("tutorId", isEqualTo: user!.uid)
+                .where("startDate", isGreaterThanOrEqualTo: startOfDay)
+                .where('endDate', isLessThan: endOfDay)
+                .snapshots(),
+
+            builder: (context, snapshot){
+              if (snapshot.hasError) {
+                return Center(child: Text("Error: ${snapshot.error}"));
+              }
+
+              List<CardTaskData> taskInProgress = [];
+              if(snapshot.hasData){
+                taskInProgress = snapshot.data!.docs.map((doc){
+                  return CardTaskData.fromFirestore(doc.data() as Map<String, dynamic>);
+                }).toList();
+              }
+
+
+              return  CircularWidgetLoading(
+                  loading: loading,
+                  dotColor: Colors.green,
+                  child:  taskInProgress.isEmpty ?
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                          "assets/images/search.png",
+                          height: 150),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'You have no tasks today ☺️',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        "Add tasks added will appear here",
+                        style: TextStyle(fontSize: 16),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 30),
+                    ],
+                  ) :
+                  _TaskInProgress(data: taskInProgress));
+            },
+          ),
+          const SizedBox(height: kSpacing * 2),
+          _HeaderWeeklyTask(context: context,),
+          const SizedBox(height: kSpacing),
+          StreamBuilder<QuerySnapshot>(
+            stream: firestore
+                .collection("tasks")
+                // .where("tutorId", isEqualTo: user!.uid)
+                .where("startDate", isGreaterThanOrEqualTo: startOfWeek)
+                .where("endDate", isLessThan: endOfWeek)
+                .snapshots(),
+            builder: (context, snapshot){
+              if (snapshot.hasError) {
+                return Center(child: Text("Error: ${snapshot.error}"));
+              }
+
+              List<ListTaskAssignedData> weeklyTask = [];
+              if(snapshot.hasData){
+                weeklyTask = snapshot.data!.docs.map((doc){
+                  return ListTaskAssignedData.fromFirestore(doc.data() as Map<String, dynamic>);
+                }).toList();
+              }
+
+
+              return CircularWidgetLoading(
+                loading: loading,
+                dotColor: Colors.green,
+                child: weeklyTask.isEmpty ?
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                        "assets/images/search.png",
+                        height: 150),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'You have no tasks for this week',
+                      style: TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Added tasks for this week will appear here",
+                      style: TextStyle(fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 30),
+                  ],
+                ) :
+                _WeeklyTask(
+                  data: weeklyTask,
+                  onPressed: onPressedTask,
+                  onPressedAssign: onPressedAssignTask,
+                  onPressedMember: onPressedMemberTask,
+                ),
+              );
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCalendarContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kSpacing),
+      child: CircularWidgetLoading(
+        loading: loading,
+        dotColor: Colors.green,
+        child: Column(
+          children: [
+            const SizedBox(height: kSpacing),
+            Row(
+              children: [
+                const Expanded(child: HeaderText("Calendar")),
+                IconButton(
+                  onPressed: onPressedCalendar,
+                  icon: const Icon(Icons.date_range),
+                  tooltip: "calendar",
+                )
+              ],
+            ),
+            StreamBuilder<QuerySnapshot>(
+              stream: firestore
+                  .collection("tasks")
+                  // .where("tutorId", isEqualTo: user!.uid)
+                  .snapshots(),
+                builder: (context, snapshot){
+                  if (snapshot.hasError) {
+                    return Center(child: Text("Error: ${snapshot.error}"));
+                  }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  List<ListTaskDateData> tasks = snapshot.data!.docs.map((doc){
+                    return ListTaskDateData.fromFirestore(doc.data() as Map<String, dynamic>);
+                  }).toList();
+
+                  List<List<ListTaskDateData>> groupedTasks = _groupedTasksBydate(tasks);
+
+                  return Column(
+                    children: [
+                      const SizedBox(height: kSpacing),
+                      ...groupedTasks
+                          .map(
+                            (e) => _TaskGroup(
+                          title: DateFormat('d MMMM').format(e[0].date),
+                          data: e,
+                          onPressed: onPressedTaskGroup,
+                        ),
+                      )
+                          .toList()
+                    ],
+                  );
+                },
+            ),
+
+          ],
+        ),
+      ),
+    );
+  }
+
+}
+
+List<List<ListTaskDateData>> _groupedTasksBydate(List<ListTaskDateData> tasks){
+  Map<String, List<ListTaskDateData>> groupedTaskMap = {};
+
+  for (var task in tasks){
+    String dateKey = DateFormat("yyyy-MM-dd").format(task.date);
+    if (!groupedTaskMap.containsKey(dateKey)) {
+      groupedTaskMap[dateKey] = [];
+    }
+    groupedTaskMap[dateKey]!.add(task);
+  }
+
+  List<String> sortedKeys = groupedTaskMap.keys.toList()..sort(
+          (a, b) => DateTime.parse(a).compareTo(DateTime.parse(b))
+  );
+
+  List<List<ListTaskDateData>> groupedTasks = sortedKeys.map((key) =>
+  groupedTaskMap[key]!).toList();
+  return groupedTasks;
+}

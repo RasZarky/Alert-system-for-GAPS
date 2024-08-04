@@ -4,6 +4,7 @@ import 'package:alert_system_for_gaps/screens/dashboard/components/mini_informat
 import 'package:alert_system_for_gaps/screens/dashboard/components/recent_forums.dart';
 import 'package:alert_system_for_gaps/screens/dashboard/components/recent_users.dart';
 import 'package:alert_system_for_gaps/screens/dashboard/components/user_details_widget.dart';
+import 'package:alert_system_for_gaps/screens/offficerHomePage/views/screens/officer_dashboard_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'components/header.dart';
@@ -29,10 +30,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Column(
             children: [
               Header(onTap: widget.onTap,),
-              SizedBox(height: defaultPadding),
-              Center(
-                child: Text("Extension officer page"),
-              )
+              const SizedBox(height: defaultPadding),
+              const OfficerDashboardScreen(),
               // MiniInformation(),
               // SizedBox(height: defaultPadding),
               // Row(

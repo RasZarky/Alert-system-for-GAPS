@@ -110,6 +110,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
         startTimer();
       } else {
         setState(() {
+          _codeSent = true;
           loading = false;
         });
         showDialog(

@@ -70,11 +70,12 @@ class _SideMenuState extends State<SideMenu> {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
               },
             ),
+            role == "admin" ?
             DrawerListTile(
               title: "Tasks",
               svgSrc: "assets/icons/menu_tran.svg",
               press: () {},
-            ),
+            ) : Container(),
             DrawerListTile(
               title: "Farmers",
               svgSrc: "assets/icons/menu_task.svg",

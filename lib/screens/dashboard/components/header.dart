@@ -62,9 +62,7 @@ class _HeaderState extends State<Header> {
               ),
             ],
           ),
-        if (!Responsive.isMobile(context))
-          Spacer(flex: Responsive.isDesktop(context) ? 2 : 1),
-        Expanded(child: SearchField()),
+        Spacer(),
         ProfileCard(role: role,)
       ],
     );
