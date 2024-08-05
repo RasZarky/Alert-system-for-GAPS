@@ -164,46 +164,6 @@ class _OfficerDashboardScreenState extends State<OfficerDashboardScreen> {
                 ),
               ),
               const SizedBox(width: kSpacing / 2),
-              StreamBuilder<QuerySnapshot>(
-                stream: firestore
-                    .collection("tasks")
-                    .where("startDate", isGreaterThanOrEqualTo: startOfDay)
-                    .where('endDate', isLessThan: endOfDay)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(child: Text("Error: ${snapshot.error}"));
-                  }
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  List<QueryDocumentSnapshot> _AllItems = snapshot.data!.docs;
-                  int all = 0;
-                  int done = 0;
-                  if (snapshot.data != null) {
-                    List<QueryDocumentSnapshot> _UnDoneItems = snapshot.data!.docs.where((item) {
-                      final data = item.data() as Map<String, dynamic>;
-                      final status = data['status'] ?? "";
-                      return status.startsWith("done");
-                    }).toList();
-
-                    all = _AllItems.length;
-                    done = _UnDoneItems.length;
-                  }
-
-                  return SizedBox(
-                    width: 200,
-                    child: WiperLoading(
-                      loading: loading,
-                      wiperColor: Colors.green,
-                      child: all != 0
-                          ? TaskProgress(data: TaskProgressData(totalTask: all, totalCompleted: done))
-                          : Container(),
-                    ),
-                  );
-                },
-              ),
             ],
           ),
           const SizedBox(height: kSpacing),

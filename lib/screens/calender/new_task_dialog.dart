@@ -270,6 +270,7 @@ class _NewTaskDialogState extends State<NewTaskDialog> {
                                     'endDate': finalDate,
                                     'class': classes[_selectedClass],
                                     'id': id,
+                                    'completedUsers': [],
                                   });
 
                                   setState(() {

@@ -4,6 +4,7 @@ import 'package:colorize_text_avatar/colorize_text_avatar.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:widget_loading/widget_loading.dart';
 
 class CardTaskData {
@@ -13,6 +14,7 @@ class CardTaskData {
   final String userName;
   final String jobDesk;
   final DateTime dueDate;
+  final List<dynamic> completedUsers;
 
   const CardTaskData({
     required this.label,
@@ -21,16 +23,18 @@ class CardTaskData {
     required this.userName,
     required this.jobDesk,
     required this.dueDate,
+    required this.completedUsers,
   });
 
-  factory CardTaskData.fromFirestore(Map<String, dynamic> data){
+  factory CardTaskData.fromFirestore(Map<String, dynamic> data) {
     return CardTaskData(
-        label: data["activity"] ?? "",
-        jobDesk: data["class"] ?? "",
-        dueDate: (data["endDate"]).toDate() ?? "",
-        userName: data["assignedTo"] ?? "",
-        status: data["status"] ?? "",
-        createdOn: (data["startDate"]).toDate() ?? "",
+      label: data["activity"] ?? "",
+      jobDesk: data["class"] ?? "",
+      dueDate: (data["endDate"]).toDate() ?? "",
+      userName: data["assignedTo"] ?? "",
+      status: data["status"] ?? "",
+      createdOn: (data["startDate"]).toDate() ?? "",
+      completedUsers: data["completedUsers"] ?? [],
     );
   }
 }
@@ -52,8 +56,21 @@ class CardTask extends StatefulWidget {
 }
 
 class _CardTaskState extends State<CardTask> {
-
   bool loading = false;
+  String? currentUserId; // Declare member variable for current user ID
+  String? currentUserName; // Declare member variable for current user name
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData(); // Load user data when the widget is initialized
+  }
+
+  Future<void> _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    currentUserId = prefs.getString("id");
+    currentUserName = prefs.getString("name");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,8 +152,6 @@ class _CardTaskState extends State<CardTask> {
 
   Widget _buildJobdesk() {
     return Container(
-
-
       child: Row(
         children: [
           Text(
@@ -203,46 +218,88 @@ class _CardTaskState extends State<CardTask> {
   Widget _doneButton() {
     return ElevatedButton.icon(
       onPressed: () async {
-
         setState(() {
           loading = true;
         });
 
-        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-            .collection('tasks')
-            .get();
+        // Retrieve the current user's ID and name from SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? currentUserId = prefs.getString("id");
+        String? currentUserName = prefs.getString("name");
 
-        if(querySnapshot.docs.isNotEmpty){
+        try {
+          // Query Firestore for the task
+          QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+              .collection('tasks')
+              .where('activity', isEqualTo: widget.data.label)
+              .where('class', isEqualTo: widget.data.jobDesk)
+              .where('endDate', isEqualTo: widget.data.dueDate)
+              .where('startDate', isEqualTo: widget.data.createdOn)
+              .get();
 
-          DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
-          String docId = documentSnapshot.id;
+          if (querySnapshot.docs.isNotEmpty) {
+            DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
+            String docId = documentSnapshot.id;
 
-          FirebaseFirestore.instance
-              .collection('CalendarAppointmentCollection')
-              .doc(docId).update({
-            "status": widget.data.status == "done" ? "undone" : "done"
+            // Prepare the update data
+            Map<String, dynamic> updateData = {};
+            List<dynamic> completedUsers = documentSnapshot['completedUsers'] ?? [];
+
+            // Check if the current user is already in the completedUsers list
+            bool isUserCompleted = completedUsers.any((user) => user['userId'] == currentUserId);
+
+            if (!isUserCompleted) {
+              // User is not in the list, add them
+              completedUsers.add({
+                'userId': currentUserId,
+                'userName': currentUserName,
+              });
+            } else {
+              // User is already in the list, remove them
+              completedUsers.removeWhere((user) => user['userId'] == currentUserId);
+            }
+
+            // Update the task document
+            updateData['completedUsers'] = completedUsers;
+
+            await FirebaseFirestore.instance
+                .collection('tasks')
+                .doc(docId)
+                .update(updateData);
+
+            // Debugging statement to confirm update
+            print("Task updated successfully: $docId");
+          } else {
+            print("No tasks found for the specified criteria.");
+          }
+        } catch (e) {
+          // Handle any errors that occur during the Firestore operations
+          print("Error updating task: $e");
+        } finally {
+          // Ensure loading is set back to false
+          setState(() {
+            loading = false;
           });
-
         }
-
-        setState(() {
-          loading = false;
-        });
-
       },
       style: ElevatedButton.styleFrom(
-        foregroundColor: widget.primary, backgroundColor: widget.onPrimary,
+        foregroundColor: widget.primary,
+        backgroundColor: widget.onPrimary,
       ),
-      icon: widget.data.status == "done" ?
-            const Icon(EvaIcons.checkmarkCircle2)
-            : const Icon(EvaIcons.checkmarkCircle2Outline),
+
+      // Show different icons based on whether the user has completed the task
+      icon: (widget.data.completedUsers != null &&
+          widget.data.completedUsers.any((user) => user['userId'] == currentUserId))
+          ? const Icon(EvaIcons.checkmarkCircle2) // Icon for completed task
+          : const Icon(EvaIcons.checkmarkCircle2Outline), // Icon for uncompleted task
       label: WiperLoading(
         loading: loading,
-          wiperColor: widget.primary,
-          child: const Text("Done")
+        wiperColor: widget.primary,
+        child: const Text("Done"),
       ),
     );
   }
+
 }
 
 class _IconLabel extends StatelessWidget {
