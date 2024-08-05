@@ -39,6 +39,7 @@ class OfficerDashboardScreen extends StatefulWidget {
 class _OfficerDashboardScreenState extends State<OfficerDashboardScreen> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   bool loading = false;
+  String id = "";
 
   Future<void> getData() async {
     setState(() {
@@ -46,6 +47,11 @@ class _OfficerDashboardScreenState extends State<OfficerDashboardScreen> {
     });
     
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? newId = prefs.getString("id");
+
+    setState(() {
+      id = newId!;
+    });
 
     setState(() {
       loading = false;
@@ -139,7 +145,6 @@ class _OfficerDashboardScreenState extends State<OfficerDashboardScreen> {
 
 
   Widget _buildTaskContent() {
-
     DateTime now = DateTime.now();
     DateTime startOfDay = DateTime(now.year, now.month, now.day);
     DateTime endOfDay = startOfDay.add(const Duration(days: 1));
@@ -162,11 +167,10 @@ class _OfficerDashboardScreenState extends State<OfficerDashboardScreen> {
               StreamBuilder<QuerySnapshot>(
                 stream: firestore
                     .collection("tasks")
-                    // .where("tutorId", isEqualTo: user!.uid)
                     .where("startDate", isGreaterThanOrEqualTo: startOfDay)
                     .where('endDate', isLessThan: endOfDay)
                     .snapshots(),
-                builder: (context, snapshot){
+                builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Center(child: Text("Error: ${snapshot.error}"));
                   }
@@ -177,145 +181,212 @@ class _OfficerDashboardScreenState extends State<OfficerDashboardScreen> {
                   List<QueryDocumentSnapshot> _AllItems = snapshot.data!.docs;
                   int all = 0;
                   int done = 0;
-                  if(snapshot.data != null){
-                    List<QueryDocumentSnapshot> _UnDoneItems = snapshot.data!.docs.where((item){
+                  if (snapshot.data != null) {
+                    List<QueryDocumentSnapshot> _UnDoneItems = snapshot.data!.docs.where((item) {
                       final data = item.data() as Map<String, dynamic>;
                       final status = data['status'] ?? "";
                       return status.startsWith("done");
                     }).toList();
 
-                      all = _AllItems.length;
-                      done = _UnDoneItems.length;
-
+                    all = _AllItems.length;
+                    done = _UnDoneItems.length;
                   }
 
-
-                  return  SizedBox(
+                  return SizedBox(
                     width: 200,
                     child: WiperLoading(
-                        loading: loading,
-                        wiperColor: Colors.green,
-                        child: all != 0 ? TaskProgress(
-                        data: TaskProgressData(totalTask: all, totalCompleted: done),
-                    )
-                            : Container()
+                      loading: loading,
+                      wiperColor: Colors.green,
+                      child: all != 0
+                          ? TaskProgress(data: TaskProgressData(totalTask: all, totalCompleted: done))
+                          : Container(),
                     ),
                   );
                 },
-              )
+              ),
             ],
           ),
           const SizedBox(height: kSpacing),
-          StreamBuilder<QuerySnapshot>(
-            stream: firestore
-                .collection("tasks")
-                // .where("tutorId", isEqualTo: user!.uid)
-                .where("startDate", isGreaterThanOrEqualTo: startOfDay)
-                .where('endDate', isLessThan: endOfDay)
-                .snapshots(),
-
-            builder: (context, snapshot){
-              if (snapshot.hasError) {
-                return Center(child: Text("Error: ${snapshot.error}"));
+          FutureBuilder<String>(
+            future: getCurrentOfficerId(),
+            builder: (context, officerSnapshot) {
+              if (officerSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
               }
-
-              List<CardTaskData> taskInProgress = [];
-              if(snapshot.hasData){
-                taskInProgress = snapshot.data!.docs.map((doc){
-                  return CardTaskData.fromFirestore(doc.data() as Map<String, dynamic>);
-                }).toList();
+              if (officerSnapshot.hasError) {
+                return Center(child: Text("Error: ${officerSnapshot.error}"));
               }
+              String officerId = officerSnapshot.data!;
 
+              // StreamBuilder for daily tasks
+              return StreamBuilder<QuerySnapshot>(
+                stream: firestore
+                    .collection("farmers")
+                    .where("officerId", isEqualTo: id)
+                    .snapshots(),
+                builder: (context, farmerSnapshot) {
+                  if (farmerSnapshot.hasError) {
+                    return Center(child: Text("Error: ${farmerSnapshot.error}"));
+                  }
+                  if (!farmerSnapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-              return  CircularWidgetLoading(
-                  loading: loading,
-                  dotColor: Colors.green,
-                  child:  taskInProgress.isEmpty ?
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                          "assets/images/search.png",
-                          height: 150),
-                      const SizedBox(height: 20),
-                      const Text(
-                        'You have no tasks today ☺️',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        "Add tasks added will appear here",
-                        style: TextStyle(fontSize: 16),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 30),
-                    ],
-                  ) :
-                  _TaskInProgress(data: taskInProgress));
+                  // Extract classes from the retrieved farmers
+                  List<String> farmerClasses = farmerSnapshot.data!.docs
+                      .map((doc) => (doc.data() as Map<String, dynamic>)['class'] as String)
+                      .toList();
+
+                  // Daily tasks based on farmer classes
+                  return StreamBuilder<QuerySnapshot>(
+                    stream: firestore
+                        .collection("tasks")
+                        .where("startDate", isGreaterThanOrEqualTo: startOfDay)
+                        .where('endDate', isLessThan: endOfDay)
+                        .where("class", whereIn: farmerClasses.isNotEmpty ? farmerClasses : ['dummy']) // Dummy if empty
+                        .snapshots(),
+                    builder: (context, taskSnapshot) {
+                      if (taskSnapshot.hasError) {
+                        return Center(child: Text("Error: ${taskSnapshot.error}"));
+                      }
+
+                      List<CardTaskData> taskInProgress = [];
+                      if (taskSnapshot.hasData) {
+                        taskInProgress = taskSnapshot.data!.docs.map((doc) {
+                          return CardTaskData.fromFirestore(doc.data() as Map<String, dynamic>);
+                        }).toList();
+                      }
+
+                      return CircularWidgetLoading(
+                        loading: loading,
+                        dotColor: Colors.green,
+                        child: taskInProgress.isEmpty
+                            ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset("assets/images/search.png", height: 150),
+                            const SizedBox(height: 20),
+                            const Text(
+                              'You have no tasks today ☺️',
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 10),
+                            const Text(
+                              "Added tasks will appear here",
+                              style: TextStyle(fontSize: 16),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 30),
+                          ],
+                        )
+                            : _TaskInProgress(data: taskInProgress),
+                      );
+                    },
+                  );
+                },
+              );
             },
           ),
           const SizedBox(height: kSpacing * 2),
-          _HeaderWeeklyTask(context: context,),
+          _HeaderWeeklyTask(context: context),
           const SizedBox(height: kSpacing),
-          StreamBuilder<QuerySnapshot>(
-            stream: firestore
-                .collection("tasks")
-                // .where("tutorId", isEqualTo: user!.uid)
-                .where("startDate", isGreaterThanOrEqualTo: startOfWeek)
-                .where("endDate", isLessThan: endOfWeek)
-                .snapshots(),
-            builder: (context, snapshot){
-              if (snapshot.hasError) {
-                return Center(child: Text("Error: ${snapshot.error}"));
+          FutureBuilder<String>(
+            future: getCurrentOfficerId(),
+            builder: (context, officerSnapshot) {
+              if (officerSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
               }
-
-              List<ListTaskAssignedData> weeklyTask = [];
-              if(snapshot.hasData){
-                weeklyTask = snapshot.data!.docs.map((doc){
-                  return ListTaskAssignedData.fromFirestore(doc.data() as Map<String, dynamic>);
-                }).toList();
+              if (officerSnapshot.hasError) {
+                return Center(child: Text("Error: ${officerSnapshot.error}"));
               }
+              String officerId = officerSnapshot.data!;
 
+              // StreamBuilder for weekly tasks
+              return StreamBuilder<QuerySnapshot>(
+                stream: firestore
+                    .collection("farmers")
+                    .where("officerId", isEqualTo: id)
+                    .snapshots(),
+                builder: (context, farmerSnapshot) {
+                  if (farmerSnapshot.hasError) {
+                    return Center(child: Text("Error: ${farmerSnapshot.error}"));
+                  }
+                  if (!farmerSnapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-              return CircularWidgetLoading(
-                loading: loading,
-                dotColor: Colors.green,
-                child: weeklyTask.isEmpty ?
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                        "assets/images/search.png",
-                        height: 150),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'You have no tasks for this week',
-                      style: TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      "Added tasks for this week will appear here",
-                      style: TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 30),
-                  ],
-                ) :
-                _WeeklyTask(
-                  data: weeklyTask,
-                  onPressed: onPressedTask,
-                  onPressedAssign: onPressedAssignTask,
-                  onPressedMember: onPressedMemberTask,
-                ),
+                  // Extract classes from the retrieved farmers
+                  List<String> farmerClasses = farmerSnapshot.data!.docs
+                      .map((doc) => (doc.data() as Map<String, dynamic>)['class'] as String)
+                      .toList();
+
+                  // Weekly tasks based on farmer classes
+                  return StreamBuilder<QuerySnapshot>(
+                    stream: firestore
+                        .collection("tasks")
+                        .where("startDate", isGreaterThanOrEqualTo: startOfWeek)
+                        .where("endDate", isLessThan: endOfWeek)
+                        .where("class", whereIn: farmerClasses.isNotEmpty ? farmerClasses : ['dummy']) // Dummy if empty
+                        .snapshots(),
+                    builder: (context, taskSnapshot) {
+                      if (taskSnapshot.hasError) {
+                        return Center(child: Text("Error: ${taskSnapshot.error}"));
+                      }
+
+                      List<ListTaskAssignedData> weeklyTask = [];
+                      if (taskSnapshot.hasData) {
+                        weeklyTask = taskSnapshot.data!.docs.map((doc) {
+                          return ListTaskAssignedData.fromFirestore(doc.data() as Map<String, dynamic>);
+                        }).toList();
+                      }
+
+                      return CircularWidgetLoading(
+                        loading: loading,
+                        dotColor: Colors.green,
+                        child: weeklyTask.isEmpty
+                            ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset("assets/images/search.png", height: 150),
+                            const SizedBox(height: 20),
+                            const Text(
+                              'You have no tasks for this week',
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 10),
+                            const Text(
+                              "Added tasks for this week will appear here",
+                              style: TextStyle(fontSize: 16),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 30),
+                          ],
+                        )
+                            : _WeeklyTask(
+                          data: weeklyTask,
+                          onPressed: onPressedTask,
+                          onPressedAssign: onPressedAssignTask,
+                          onPressedMember: onPressedMemberTask,
+                        ),
+                      );
+                    },
+                  );
+                },
               );
             },
-          )
+          ),
         ],
       ),
     );
   }
+
+// Function to get the current officer ID from SharedPreferences
+  Future<String> getCurrentOfficerId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString("officerId") ?? ""; // Return the officer ID or an empty string
+  }
+
+
 
   Widget _buildCalendarContent() {
     return Padding(
@@ -336,42 +407,72 @@ class _OfficerDashboardScreenState extends State<OfficerDashboardScreen> {
                 )
               ],
             ),
-            StreamBuilder<QuerySnapshot>(
-              stream: firestore
-                  .collection("tasks")
-                  // .where("tutorId", isEqualTo: user!.uid)
-                  .snapshots(),
-                builder: (context, snapshot){
-                  if (snapshot.hasError) {
-                    return Center(child: Text("Error: ${snapshot.error}"));
-                  }
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+            FutureBuilder<String>(
+              future: getCurrentOfficerId(),
+              builder: (context, officerSnapshot) {
+                if (officerSnapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (officerSnapshot.hasError) {
+                  return Center(child: Text("Error: ${officerSnapshot.error}"));
+                }
+                String officerId = officerSnapshot.data!;
 
-                  List<ListTaskDateData> tasks = snapshot.data!.docs.map((doc){
-                    return ListTaskDateData.fromFirestore(doc.data() as Map<String, dynamic>);
-                  }).toList();
+                return StreamBuilder<QuerySnapshot>(
+                  stream: firestore
+                      .collection("farmers")
+                      .where("officerId", isEqualTo: id)
+                      .snapshots(),
+                  builder: (context, farmerSnapshot) {
+                    if (farmerSnapshot.hasError) {
+                      return Center(child: Text("Error: ${farmerSnapshot.error}"));
+                    }
+                    if (!farmerSnapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                  List<List<ListTaskDateData>> groupedTasks = _groupedTasksBydate(tasks);
+                    // Extract classes from the retrieved farmers
+                    List<String> farmerClasses = farmerSnapshot.data!.docs
+                        .map((doc) => (doc.data() as Map<String, dynamic>)['class'] as String)
+                        .toList();
 
-                  return Column(
-                    children: [
-                      const SizedBox(height: kSpacing),
-                      ...groupedTasks
-                          .map(
-                            (e) => _TaskGroup(
-                          title: DateFormat('d MMMM').format(e[0].date),
-                          data: e,
-                          onPressed: onPressedTaskGroup,
-                        ),
-                      )
-                          .toList()
-                    ],
-                  );
-                },
+                    // StreamBuilder for tasks based on farmer classes
+                    return StreamBuilder<QuerySnapshot>(
+                      stream: firestore.collection("tasks").where("class", whereIn: farmerClasses.isNotEmpty ? farmerClasses : ['dummy']).snapshots(),
+                      builder: (context, taskSnapshot) {
+                        if (taskSnapshot.hasError) {
+                          return Center(child: Text("Error: ${taskSnapshot.error}"));
+                        }
+                        if (taskSnapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+
+                        List<ListTaskDateData> tasks = taskSnapshot.data!.docs.map((doc) {
+                          return ListTaskDateData.fromFirestore(doc.data() as Map<String, dynamic>);
+                        }).toList();
+
+                        List<List<ListTaskDateData>> groupedTasks = _groupedTasksBydate(tasks);
+
+                        return Column(
+                          children: [
+                            const SizedBox(height: kSpacing),
+                            ...groupedTasks
+                                .map(
+                                  (e) => _TaskGroup(
+                                title: DateFormat('d MMMM').format(e[0].date),
+                                data: e,
+                                onPressed: onPressedTaskGroup,
+                              ),
+                            )
+                                .toList(),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                );
+              },
             ),
-
           ],
         ),
       ),

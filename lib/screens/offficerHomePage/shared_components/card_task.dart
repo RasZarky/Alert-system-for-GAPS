@@ -209,8 +209,8 @@ class _CardTaskState extends State<CardTask> {
         });
 
         QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-            .collection('CalendarAppointmentCollection')
-            .where("createdOn", isEqualTo: widget.data.createdOn).get();
+            .collection('tasks')
+            .get();
 
         if(querySnapshot.docs.isNotEmpty){
 
