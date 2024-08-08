@@ -5,6 +5,7 @@ import 'package:alert_system_for_gaps/screens/extensionOfficer/officers.dart';
 import 'package:alert_system_for_gaps/screens/farmers/farmers.dart';
 import 'package:alert_system_for_gaps/screens/home/home_screen.dart';
 import 'package:alert_system_for_gaps/screens/login/login_screen.dart';
+import 'package:alert_system_for_gaps/screens/tasks/tasks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -74,7 +75,9 @@ class _SideMenuState extends State<SideMenu> {
             DrawerListTile(
               title: "Tasks",
               svgSrc: "assets/icons/menu_tran.svg",
-              press: () {},
+              press: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const AllTasks()));
+              },
             ) : Container(),
             DrawerListTile(
               title: "Farmers",
