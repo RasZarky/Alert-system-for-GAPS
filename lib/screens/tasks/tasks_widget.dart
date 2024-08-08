@@ -236,7 +236,7 @@ DataRow recentUserDataRow(Map<String, dynamic> userInfo, BuildContext context,
               upperCase: true,
               numberLetters: 1,
               shape: Shape.Rectangle,
-              text: "${userInfo["activity"]}",
+              text: userInfo["name"].contains(RegExp(r'\d')) ? "Q" : "${userInfo["name"]}",
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
