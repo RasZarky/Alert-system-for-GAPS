@@ -25,24 +25,13 @@ class _OfficersMainPageState extends State<OfficersMainPage> {
           child: Row(
             children: [
               Text(
-                "All Extension Officers",
+                "All Officers",
                 style: Theme.of(context)
                     .textTheme
                     .headline6
                     ?.copyWith(color: Colors.white),
               ),
-            ],
-          ),
-        ),
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: SingleChildScrollView(
-              child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-
+              const Spacer(),
               ElevatedButton.icon(
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -62,19 +51,22 @@ class _OfficersMainPageState extends State<OfficersMainPage> {
                 },
                 icon: const Icon(Icons.add),
                 label: const Text(
-                  "Add New Extension Officer",
+                  "Add Officer",
                 ),
               ),
-              const SizedBox(
-                height: defaultPadding,
-              ),
-                ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: 550
-                    ),
-                    child: OfficersWidget())
             ],
-          )),
+          ),
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: SingleChildScrollView(
+              child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 550
+                  ),
+                  child: OfficersWidget())),
         ),
       ),
     );

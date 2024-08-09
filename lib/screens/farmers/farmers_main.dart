@@ -48,6 +48,31 @@ class _FarmersMainPageState extends State<FarmersMainPage> {
                     .headline6
                     ?.copyWith(color: Colors.white),
               ),
+              const Spacer(),
+              role == "extension officer"
+                  ? ElevatedButton.icon(
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: defaultPadding * 1.5,
+                    vertical: defaultPadding /
+                        (Responsive.isMobile(context) ? 2 : 1),
+                  ),
+                ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return const NewFarmerDialog();
+                    },
+                  );
+                },
+                icon: const Icon(Icons.add),
+                label: const Text(
+                  "Add Farmer",
+                ),
+              )
+                  : Container(),
             ],
           ),
         ),
@@ -56,43 +81,11 @@ class _FarmersMainPageState extends State<FarmersMainPage> {
         child: Padding(
           padding: const EdgeInsets.all(15.0),
           child: SingleChildScrollView(
-              child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              role == "extension officer"
-                  ? ElevatedButton.icon(
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: defaultPadding * 1.5,
-                          vertical: defaultPadding /
-                              (Responsive.isMobile(context) ? 2 : 1),
-                        ),
-                      ),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return const NewFarmerDialog();
-                          },
-                        );
-                      },
-                      icon: const Icon(Icons.add),
-                      label: const Text(
-                        "Add New Farmer",
-                      ),
-                    )
-                  : Container(),
-              const SizedBox(
-                height: defaultPadding,
-              ),
-              role == "extension officer"
+              child: role == "extension officer"
                   ? FarmersWidget()
                   : role == "admin"
                       ? AdminFarmersWidget()
-                      : Container(),
-            ],
-          )),
+                      : Container()),
         ),
       ),
     );

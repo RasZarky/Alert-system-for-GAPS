@@ -2,11 +2,9 @@ import 'dart:math';
 
 import 'package:alert_system_for_gaps/core/constants/color_constants.dart';
 import 'package:alert_system_for_gaps/screens/calender/calender_main.dart';
-import 'package:alert_system_for_gaps/screens/dashboard/components/calendart_widget.dart';
 import 'package:alert_system_for_gaps/screens/dashboard/components/charts.dart';
 import 'package:alert_system_for_gaps/screens/dashboard/components/user_details_mini_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:widget_loading/widget_loading.dart';

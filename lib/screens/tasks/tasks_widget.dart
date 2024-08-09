@@ -203,7 +203,12 @@ class _TasksWidgetState extends State<TasksWidget> {
                                     _filteredItems[index].data() as Map<String, dynamic>,
                                     context,
                                         () {
+                                          FirebaseFirestore.instance
+                                              .collection('tasks')
+                                              .doc(_filteredItems[index].id)
+                                              .delete();
 
+                                          Navigator.pop(context);
                                     },
                                   ),
                                 ),
@@ -222,22 +227,22 @@ class _TasksWidgetState extends State<TasksWidget> {
 }
 
 DataRow recentUserDataRow(Map<String, dynamic> userInfo, BuildContext context,
-    void Function() more) {
+    void Function() delete) {
   return DataRow(
     cells: [
       DataCell(
         Row(
           children: [
-            TextAvatar(
-              size: 35,
-              backgroundColor: Colors.white,
-              textColor: Colors.white,
-              fontSize: 14,
-              upperCase: true,
-              numberLetters: 1,
-              shape: Shape.Rectangle,
-              text: userInfo["name"].contains(RegExp(r'\d')) ? "Q" : "${userInfo["name"]}",
-            ),
+            // TextAvatar(
+            //   size: 35,
+            //   backgroundColor: Colors.white,
+            //   textColor: Colors.white,
+            //   fontSize: 14,
+            //   upperCase: true,
+            //   numberLetters: 1,
+            //   shape: Shape.Rectangle,
+            //   text: userInfo["name"],
+            // ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Text(
@@ -270,56 +275,105 @@ DataRow recentUserDataRow(Map<String, dynamic> userInfo, BuildContext context,
         style: const TextStyle(color: Colors.white),
       )),
       DataCell(
-        TextButton(
-          child: const Text("More",
-              style: TextStyle(color: Colors.orangeAccent)),
-          onPressed: () {
-            showDialog(
-                context: context,
-                builder: (_) {
-                  List<dynamic> completedUsers = userInfo["completedUsers"];
+        Row(
+          children: [
+            TextButton(
+              child: const Text("More",
+                  style: TextStyle(color: Colors.orangeAccent)),
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (_) {
+                      List<dynamic> completedUsers = userInfo["completedUsers"];
 
-                  return AlertDialog(
-                      backgroundColor: Colors.black,
-                      title: Center(
-                        child: Column(
-                          children: [
-                            const Icon(Icons.list_alt,
-                                size: 36, color: Colors.green),
-                            const SizedBox(height: 20),
-                            Text(
-                              "Officers who completed: '${userInfo["activity"]}' for class ${userInfo["class"]}",
-                              style: const TextStyle(color: Colors.white),
-                              textAlign: TextAlign.center,
+                      return AlertDialog(
+                          backgroundColor: Colors.black,
+                          title: Center(
+                            child: Column(
+                              children: [
+                                const Icon(Icons.list_alt,
+                                    size: 36, color: Colors.green),
+                                const SizedBox(height: 20),
+                                Text(
+                                  "Officers who completed: '${userInfo["activity"]}' for class ${userInfo["class"]}",
+                                  style: const TextStyle(color: Colors.white),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                      content: SizedBox(
-                        height: 300,
-                        width: double.maxFinite,
-                        child: ListView.builder(
-                          itemCount: completedUsers.length,
-                          itemBuilder: (context, index) {
-                            var user = completedUsers[index];
-                            return ListTile(
-                              leading: CircleAvatar(
-                                child: Text(user["userName"][0]),
+                          ),
+                          content: SizedBox(
+                            height: 300,
+                            width: double.maxFinite,
+                            child: ListView.builder(
+                              itemCount: completedUsers.length,
+                              itemBuilder: (context, index) {
+                                var user = completedUsers[index];
+                                return ListTile(
+                                  leading: CircleAvatar(
+                                    child: Text(user["userName"][0]),
+                                  ),
+                                  title: Text(
+                                    user["userName"],
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  subtitle: Text(
+                                    "ID: ${user["userId"]}",
+                                    style: const TextStyle(color: Colors.white70),
+                                  ),
+                                );
+                              },
+                            ),
+                          ));
+                    });
+              },
+            ),
+            TextButton(
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (_) {
+                        return AlertDialog(
+                            backgroundColor: secondaryColor,
+                            title: Center(
+                              child: Column(
+                                children: [
+                                  const Icon(Icons.warning_outlined,
+                                      size: 36, color: Colors.red),
+                                  const SizedBox(height: 20),
+                                  Text(
+                                    "Are you sure you want to delete task: '${userInfo["activity"]}' \n"
+                                        "For class '${userInfo["class"]}'",
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ],
                               ),
-                              title: Text(
-                                user["userName"],
-                                style: const TextStyle(color: Colors.white),
+                            ),
+                            content: SizedBox(
+                              height: 300,
+                              child: Column(
+                                children: [
+                                  ElevatedButton.icon(
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        size: 14,
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.red),
+                                      onPressed: delete,
+                                      label: const Text("Delete")),
+                                  const SizedBox(
+                                    height: 30,
+                                  ),
+                                ],
                               ),
-                              subtitle: Text(
-                                "ID: ${user["userId"]}",
-                                style: const TextStyle(color: Colors.white70),
-                              ),
-                            );
-                          },
-                        ),
-                      ));
-                });
-          },
+                            ));
+                      });
+                },
+                child:  const Text("Delete",
+                    style: TextStyle(color: Colors.red))
+            ),
+          ],
         ),
       ),
     ],
