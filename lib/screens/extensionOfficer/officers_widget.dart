@@ -90,7 +90,7 @@ class _OfficersWidgetState extends State<OfficersWidget> {
                   "Extension Officers(${_filteredItems.length})",
                   style: Theme.of(context)
                       .textTheme
-                      .subtitle1
+                      .titleMedium
                       ?.copyWith(color: Colors.white),
                 ),
               ),

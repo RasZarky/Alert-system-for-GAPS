@@ -96,7 +96,7 @@ class _AdminFarmersWidgetState extends State<AdminFarmersWidget> {
                   "Farmers(${_filteredItems.length})",
                   style: Theme.of(context)
                       .textTheme
-                      .subtitle1
+                      .titleMedium
                       ?.copyWith(color: Colors.white),
                 ),
               ),

@@ -26,7 +26,7 @@ class _AdminsMainPageState extends State<AdminsMainPage> {
                 "All Admins",
                 style: Theme.of(context)
                     .textTheme
-                    .headline6
+                    .titleLarge
                     ?.copyWith(color: Colors.white),
               ),
             ],

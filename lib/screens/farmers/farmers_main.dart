@@ -45,7 +45,7 @@ class _FarmersMainPageState extends State<FarmersMainPage> {
                 "All Farmers",
                 style: Theme.of(context)
                     .textTheme
-                    .headline6
+                    .titleLarge
                     ?.copyWith(color: Colors.white),
               ),
               const Spacer(),

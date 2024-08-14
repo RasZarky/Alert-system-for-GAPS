@@ -51,14 +51,14 @@ class _HeaderState extends State<Header> {
             children: [
               Text(
                 "Hello, $name 👋",
-                style: Theme.of(context).textTheme.headline6,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               SizedBox(
                 height: 8,
               ),
               Text(
                 "Welcome to your dashboard",
-                style: Theme.of(context).textTheme.subtitle2,
+                style: Theme.of(context).textTheme.titleSmall,
               ),
             ],
           ),

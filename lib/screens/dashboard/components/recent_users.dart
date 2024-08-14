@@ -22,7 +22,7 @@ class RecentUsers extends StatelessWidget {
         children: [
           Text(
             "Recent Candidates",
-            style: Theme.of(context).textTheme.subtitle1,
+            style: Theme.of(context).textTheme.titleMedium,
           ),
           SingleChildScrollView(
             //scrollDirection: Axis.horizontal,

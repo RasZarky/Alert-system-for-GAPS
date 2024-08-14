@@ -45,7 +45,7 @@ class _TasksMainPageState extends State<TasksMainPage> {
                 "All Tasks",
                 style: Theme.of(context)
                     .textTheme
-                    .headline6
+                    .titleLarge
                     ?.copyWith(color: Colors.white),
               ),
               const Spacer(),

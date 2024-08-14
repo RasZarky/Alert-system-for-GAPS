@@ -58,54 +58,46 @@ class _ListTaskAssignedState extends State<ListTaskAssigned> {
   @override
   Widget build(BuildContext context) {
     return Slidable(
-      actionPane: const SlidableDrawerActionPane(),
-      secondaryActions: [
-        // MaterialButton(
-        //   color: Colors.yellow.withOpacity(0.15),
-        //   elevation: 10,
-        //   height: 40,
-        //   minWidth: 40,
-        //   shape: CircleBorder(),
-        //   child: Icon(Icons.update, color: Colors.yellow, size: 30,),
-        //   onPressed: () {
-        //
-        //   },
-        // ),
-        WiperLoading(
-          loading: loadingD,
-          child: MaterialButton(
-            color: Colors.red.withOpacity(0.15),
-            elevation: 20,
-            height: 40,
-            minWidth: 40,
-            shape: CircleBorder(),
-            child: Icon(Icons.delete, color: Colors.red, size: 30,),
-            onPressed: () async {
+      startActionPane: ActionPane(
+        motion: BehindMotion(),
+        children: [
+          WiperLoading(
+            loading: loadingD,
+            child: MaterialButton(
+              color: Colors.red.withOpacity(0.15),
+              elevation: 20,
+              height: 40,
+              minWidth: 40,
+              shape: CircleBorder(),
+              child: Icon(Icons.delete, color: Colors.red, size: 30,),
+              onPressed: () async {
 
-              setState(() {
-                loadingD = true;
-              });
-              QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-                  .collection('tasks')
-                  .where("startDate", isEqualTo: widget.data.createdOn).get();
+                setState(() {
+                  loadingD = true;
+                });
+                QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+                    .collection('tasks')
+                    .where("startDate", isEqualTo: widget.data.createdOn).get();
 
-              if(querySnapshot.docs.isNotEmpty){
+                if(querySnapshot.docs.isNotEmpty){
 
-                DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
-                String docId = documentSnapshot.id;
+                  DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
+                  String docId = documentSnapshot.id;
 
-                FirebaseFirestore.instance.collection('tasks').doc(docId).delete();
+                  FirebaseFirestore.instance.collection('tasks').doc(docId).delete();
 
-              }
+                }
 
-              setState(() {
-                loadingD = false;
-              });
+                setState(() {
+                  loadingD = false;
+                });
 
-            },
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+
+      ),
       child: ListTile(
         onTap: widget.onPressed,
         hoverColor: Colors.transparent,

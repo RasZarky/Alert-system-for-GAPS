@@ -33,8 +33,8 @@ class AppButton extends StatelessWidget {
           child: Text(this.text!,
               style: Theme.of(context)
                   .textTheme
-                  .subtitle1!
-                  .copyWith(color: getTextColor(context, type!))),
+                  .titleMedium
+                  ?.copyWith(color: getTextColor(context, type!))),
         ),
       ),
     );

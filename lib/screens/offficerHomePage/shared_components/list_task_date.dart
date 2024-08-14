@@ -50,55 +50,48 @@ class _ListTaskDateState extends State<ListTaskDate> {
   @override
   Widget build(BuildContext context) {
     return Slidable(
-      actionPane: const SlidableDrawerActionPane(),
-      secondaryActions: [
-        // MaterialButton(
-        //   color: Colors.yellow.withOpacity(0.15),
-        //   elevation: 10,
-        //   height: 40,
-        //   minWidth: 40,
-        //   shape: CircleBorder(),
-        //   child: Icon(Icons.update, color: Colors.yellow, size: 30,),
-        //   onPressed: () {
-        //
-        //   },
-        // ),
-        WiperLoading(
-          loading: loadingD,
-          wiperColor: Colors.green,
-          child: MaterialButton(
-            color: Colors.red.withOpacity(0.15),
-            elevation: 20,
-            height: 40,
-            minWidth: 40,
-            shape: CircleBorder(),
-            child: Icon(Icons.delete, color: Colors.red, size: 30,),
-            onPressed: () async {
+      startActionPane: ActionPane(
+        motion: BehindMotion(),
+        children: [
+          WiperLoading(
+            loading: loadingD,
+            wiperColor: Colors.green,
+            child: MaterialButton(
+              color: Colors.red.withOpacity(0.15),
+              elevation: 20,
+              height: 40,
+              minWidth: 40,
+              shape: CircleBorder(),
+              child: Icon(Icons.delete, color: Colors.red, size: 30,),
+              onPressed: () async {
 
-              setState(() {
-                loadingD = true;
-              });
-              QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-                  .collection('CalendarAppointmentCollection')
-                  .where("createdOn", isEqualTo: widget.data.createdOn).get();
+                setState(() {
+                  loadingD = true;
+                });
+                QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+                    .collection('CalendarAppointmentCollection')
+                    .where("createdOn", isEqualTo: widget.data.createdOn).get();
 
-              if(querySnapshot.docs.isNotEmpty){
+                if(querySnapshot.docs.isNotEmpty){
 
-                DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
-                String docId = documentSnapshot.id;
+                  DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
+                  String docId = documentSnapshot.id;
 
-                FirebaseFirestore.instance.collection('CalendarAppointmentCollection').doc(docId).delete();
+                  FirebaseFirestore.instance.collection('CalendarAppointmentCollection').doc(docId).delete();
 
-              }
+                }
 
-              setState(() {
-                loadingD = false;
-              });
+                setState(() {
+                  loadingD = false;
+                });
 
-            },
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+
+      ),
+
       child: InkWell(
         onTap: widget.onPressed,
         borderRadius: BorderRadius.circular(kBorderRadius),

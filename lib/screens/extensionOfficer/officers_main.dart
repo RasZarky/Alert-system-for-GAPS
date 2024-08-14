@@ -28,7 +28,7 @@ class _OfficersMainPageState extends State<OfficersMainPage> {
                 "All Officers",
                 style: Theme.of(context)
                     .textTheme
-                    .headline6
+                    .titleLarge
                     ?.copyWith(color: Colors.white),
               ),
               const Spacer(),
