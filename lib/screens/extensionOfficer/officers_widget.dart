@@ -194,7 +194,7 @@ class _OfficersWidgetState extends State<OfficersWidget> {
                                     context,
                                         () {
                                       FirebaseFirestore.instance
-                                          .collection('farmers')
+                                          .collection('users')
                                           .doc(_filteredItems[index].id)
                                           .delete();
 

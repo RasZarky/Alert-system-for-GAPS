@@ -351,6 +351,7 @@ DataRow recentUserDataRow(Map<String, dynamic> userInfo, BuildContext context,
                       content: SizedBox(
                         height: 300,
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ElevatedButton.icon(
                                 icon: const Icon(
@@ -364,53 +365,66 @@ DataRow recentUserDataRow(Map<String, dynamic> userInfo, BuildContext context,
                             const SizedBox(
                               height: 30,
                             ),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green),
-                              onPressed: a,
-                              child: const Text(
-                                "Class A",
-                                style: TextStyle(color: Colors.white),
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green),
+                                  onPressed: a,
+                                  child: const Text(
+                                    "Class A",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 30,
+                                ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red),
+                                  onPressed: b,
+                                  child: const Text(
+                                    "Class B",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(
-                              width: 30,
+                              height: 30,
                             ),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red),
-                              onPressed: b,
-                              child: const Text(
-                                "Class B",
-                                style: TextStyle(color: Colors.white),
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blueAccent),
+                                  onPressed: c,
+                                  child: const Text(
+                                    "Class C",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 30,
+                                ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.amberAccent),
+                                  onPressed: d,
+                                  child: const Text(
+                                    "Class D",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
                             ),
+
+
                             const SizedBox(
-                              width: 30,
-                            ),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blueAccent),
-                              onPressed: c,
-                              child: const Text(
-                                "Class C",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 30,
-                            ),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.amberAccent),
-                              onPressed: d,
-                              child: const Text(
-                                "Class D",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 30,
+                              height: 30,
                             ),
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(

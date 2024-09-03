@@ -103,6 +103,19 @@ class _NewOfficerDialogState extends State<NewOfficerDialog> {
     }
   }
 
+  bool containsOnlyNumbersAndPlus(String input) {
+    // Define a regular expression that matches strings containing only digits and the '+' character
+    final regex = RegExp(r'^[0-9+]+$');
+
+    // Test the input string against the regex and return the result
+    return regex.hasMatch(input);
+  }
+
+  bool containsOnlyAlphabets(String input) {
+    final RegExp alphabetRegex = RegExp(r'^[a-zA-Z]+$');
+    return alphabetRegex.hasMatch(input);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -254,7 +267,27 @@ class _NewOfficerDialogState extends State<NewOfficerDialog> {
                                           Text('Please fill all fields'),
                                         );
                                       });
-                                } else{
+                                } else if( !containsOnlyAlphabets(nameController.text)){
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return const AlertDialog(
+                                          title: Text("Input Error"),
+                                          content:
+                                          Text("Name should only contain alphabets"),
+                                        );
+                                      });
+                                }else if( !containsOnlyNumbersAndPlus(number)){
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return const AlertDialog(
+                                          title: Text("Input Error"),
+                                          content:
+                                          Text("Phone number should only contain numbers"),
+                                        );
+                                      });
+                                } else {
 
                                   saveUserDetails(context,
                                       nameController.text,
