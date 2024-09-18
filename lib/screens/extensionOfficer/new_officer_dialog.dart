@@ -112,8 +112,8 @@ class _NewOfficerDialogState extends State<NewOfficerDialog> {
   }
 
   bool containsOnlyAlphabets(String input) {
-    final RegExp alphabetRegex = RegExp(r'^[a-zA-Z]+$');
-    return alphabetRegex.hasMatch(input);
+    final RegExp nonNumberRegex = RegExp(r'^[^0-9]+$');
+    return nonNumberRegex.hasMatch(input);
   }
 
   @override
